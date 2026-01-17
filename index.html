@@ -1,0 +1,943 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Riser Electronic | Premium Refurbished Store</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.2/gsap.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.6.0/dist/confetti.browser.min.js"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Outfit:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+    
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    fontFamily: {
+                        sans: ['Inter', 'sans-serif'],
+                        heading: ['Outfit', 'sans-serif'],
+                    },
+                    colors: {
+                        brand: {
+                            50: '#eff6ff',
+                            100: '#dbeafe',
+                            500: '#3b82f6',
+                            600: '#2563eb',
+                            700: '#1d4ed8',
+                            900: '#1e3a8a',
+                        },
+                        dark: {
+                            900: '#0B0F19',
+                            800: '#151B2B'
+                        }
+                    },
+                    backgroundImage: {
+                        'tech-pattern': "url('https://images.unsplash.com/photo-1550751827-4bd374c3f58b?q=80&w=2070&auto=format&fit=crop')",
+                        'grid-pattern': "linear-gradient(to right, #f1f5f9 1px, transparent 1px), linear-gradient(to bottom, #f1f5f9 1px, transparent 1px)"
+                    }
+                }
+            }
+        }
+    </script>
+
+    <style>
+        body { background-color: #f8fafc; color: #1e293b; -webkit-font-smoothing: antialiased; }
+        h1, h2, h3, h4, h5, h6 { font-family: 'Outfit', sans-serif; }
+        
+        .section-view { display: none; opacity: 0; transition: opacity 0.4s ease; min-height: 60vh; }
+        .section-view.active { display: block; opacity: 1; }
+        
+        /* Premium Scrollbar */
+        ::-webkit-scrollbar { width: 8px; }
+        ::-webkit-scrollbar-track { background: #0f172a; }
+        ::-webkit-scrollbar-thumb { background: #334155; border-radius: 4px; }
+        ::-webkit-scrollbar-thumb:hover { background: #475569; }
+
+        /* Timeline */
+        .timeline-item { position: relative; padding-left: 24px; padding-bottom: 24px; border-left: 2px solid #e2e8f0; }
+        .timeline-item:last-child { border-left: transparent; }
+        .timeline-dot { position: absolute; left: -6px; top: 0; width: 10px; height: 10px; border-radius: 50%; background: #cbd5e1; border: 2px solid #fff; box-shadow: 0 0 0 1px #cbd5e1; transition: all 0.3s; }
+        .timeline-item.active .timeline-dot { background: #2563eb; box-shadow: 0 0 0 4px #dbeafe; width: 14px; height: 14px; left: -8px; border: none; }
+        .timeline-item.active { border-left-color: #2563eb; }
+
+        /* Glassmorphism & UI Polish */
+        .glass-header { background: rgba(255, 255, 255, 0.85); backdrop-filter: blur(12px); border-bottom: 1px solid rgba(255,255,255,0.3); }
+        .btn-brand { background: linear-gradient(135deg, #2563eb 0%, #1d4ed8 100%); transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1); }
+        .btn-brand:hover { box-shadow: 0 10px 30px -10px rgba(37, 99, 235, 0.6); transform: translateY(-2px); filter: brightness(110%); }
+        .btn-brand:active { transform: translateY(0); }
+        
+        .btn-dark { background: #0f172a; color: white; transition: all 0.3s ease; border: 1px solid rgba(255,255,255,0.1); }
+        .btn-dark:hover { transform: translateY(-2px); box-shadow: 0 8px 20px -5px rgba(15, 23, 42, 0.4); background: #1e293b; }
+
+        /* Lightbox */
+        .lightbox { display: none; position: fixed; inset: 0; z-index: 100; background: rgba(0, 0, 0, 0.9); justify-content: center; align-items: center; backdrop-filter: blur(8px); }
+        .lightbox.active { display: flex; animation: fadeIn 0.3s; }
+        .lightbox img { max-height: 90vh; max-width: 90vw; border-radius: 4px; box-shadow: 0 0 50px rgba(0,0,0,0.5); }
+
+        @keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
+        
+        .product-card { transition: all 0.3s cubic-bezier(0.25, 0.8, 0.25, 1); }
+        .product-card:hover { transform: translateY(-5px); }
+        .radio-selected { border-color: #2563eb; background-color: #eff6ff; color: #1e3a8a; }
+
+        /* Hero Overlay */
+        .hero-overlay { background: linear-gradient(to right, rgba(11, 15, 25, 0.95) 0%, rgba(11, 15, 25, 0.8) 50%, rgba(11, 15, 25, 0.4) 100%); }
+    </style>
+</head>
+<body class="flex flex-col min-h-screen font-sans">
+
+    <!-- CONFIGURATION -->
+    <script>
+        // Updated filename as requested
+        const APP_DOWNLOAD_LINK = "riser_electronic.apk";
+        const SOCIAL_URLS = {
+            instagram: "https://instagram.com/riser_electronic",
+            youtube: "https://youtube.com/@riser_electronic",
+            telegram: "https://t.me/riser_electronic",
+            whatsapp: "https://wa.me/919540628921"
+        };
+    </script>
+
+    <!-- HEADER -->
+    <header class="sticky top-0 z-50 glass-header shadow-sm transition-all duration-300">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div class="flex justify-between items-center h-16 md:h-20">
+                <div class="flex items-center gap-3 cursor-pointer group" onclick="navigateTo('home')">
+                    <div class="w-9 h-9 md:w-10 md:h-10 bg-brand-600 rounded-lg flex items-center justify-center text-white shadow-lg shadow-brand-500/30 transform group-hover:scale-110 transition-transform duration-300">
+                        <i class="fa-solid fa-bolt text-lg md:text-xl"></i>
+                    </div>
+                    <div>
+                        <h1 class="text-xl md:text-2xl font-heading font-black tracking-tighter text-slate-900 leading-none">RISER</h1>
+                        <p class="text-[9px] md:text-[10px] text-brand-600 font-bold tracking-[0.3em] uppercase">Electronic</p>
+                    </div>
+                </div>
+
+                <nav class="hidden md:flex items-center gap-8 bg-slate-100/50 px-6 py-2 rounded-full border border-slate-200/50 backdrop-blur-sm">
+                    <button onclick="navigateTo('home')" class="text-sm font-semibold text-slate-600 hover:text-brand-600 transition-colors">Store</button>
+                    <button onclick="navigateTo('home', 'product-section')" class="text-sm font-semibold text-slate-600 hover:text-brand-600 transition-colors">Products</button>
+                    <button onclick="navigateTo('orders')" class="text-sm font-semibold text-slate-600 hover:text-brand-600 transition-colors">Tracking</button>
+                    <button onclick="scrollToFooter()" class="text-sm font-semibold text-slate-600 hover:text-brand-600 transition-colors">Support</button>
+                </nav>
+
+                <div class="flex items-center gap-3">
+                    <!-- HEADER BUTTON UPDATED -->
+                    <a href="riser_electronic.apk" download="riser_electronic.apk" class="hidden md:flex items-center gap-2 btn-dark px-5 py-2.5 rounded-full text-xs font-bold transition-all shadow-lg shadow-slate-900/10">
+                        <i class="fa-brands fa-android text-base"></i> <span>Get App</span>
+                    </a>
+                    
+                    <button onclick="navigateTo('profile')" class="w-9 h-9 md:w-10 md:h-10 rounded-full bg-slate-50 border border-slate-200 hover:border-brand-300 hover:bg-white flex items-center justify-center text-slate-700 transition-all shadow-sm relative">
+                        <i class="fa-regular fa-user text-sm"></i>
+                    </button>
+                    
+                    <button onclick="toggleMobileMenu()" class="md:hidden w-9 h-9 flex items-center justify-center rounded-lg hover:bg-slate-100 text-slate-900">
+                        <i class="fa-solid fa-bars text-lg"></i>
+                    </button>
+                </div>
+            </div>
+        </div>
+
+        <div id="mobile-menu" class="md:hidden hidden bg-white border-t border-slate-100 shadow-2xl absolute w-full left-0 top-full z-50">
+            <div class="p-4 flex flex-col gap-2">
+                <button onclick="navigateTo('home'); toggleMobileMenu()" class="text-left p-4 rounded-xl hover:bg-slate-50 font-bold text-slate-800 border border-transparent hover:border-slate-100">
+                    <i class="fa-solid fa-store w-6 text-brand-600"></i> Home Store
+                </button>
+                <button onclick="navigateTo('orders'); toggleMobileMenu()" class="text-left p-4 rounded-xl hover:bg-slate-50 font-bold text-slate-800 border border-transparent hover:border-slate-100">
+                    <i class="fa-solid fa-box w-6 text-brand-600"></i> Track Orders
+                </button>
+                <button onclick="navigateTo('profile'); toggleMobileMenu()" class="text-left p-4 rounded-xl hover:bg-slate-50 font-bold text-slate-800 border border-transparent hover:border-slate-100">
+                    <i class="fa-solid fa-user w-6 text-brand-600"></i> My Profile
+                </button>
+                <!-- MOBILE MENU BUTTON UPDATED -->
+                <a href="riser_electronic.apk" download="riser_electronic.apk" class="text-left p-4 rounded-xl bg-slate-900 text-white font-bold flex items-center gap-2 justify-center mt-2 shadow-lg shadow-slate-900/20">
+                    <i class="fa-brands fa-android"></i> Download App
+                </a>
+            </div>
+        </div>
+    </header>
+
+    <!-- CONTENT -->
+    <div class="flex-grow relative">
+
+        <!-- 🏠 HOME -->
+        <section id="view-home" class="section-view active">
+            <div class="relative bg-dark-900 text-white overflow-hidden min-h-[auto] md:min-h-[450px] flex items-center py-8 md:py-10">
+                <div class="absolute inset-0 bg-tech-pattern bg-cover bg-center opacity-30"></div>
+                <div class="absolute inset-0 hero-overlay"></div>
+                <div class="absolute inset-0 bg-[url('https://www.transparenttextures.com/patterns/carbon-fibre.png')] opacity-20 mix-blend-overlay"></div>
+
+                <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 relative z-10 w-full">
+                    <div class="grid md:grid-cols-2 gap-8 md:gap-16 items-center">
+                        <div class="space-y-6 md:space-y-8 order-2 md:order-1 text-center md:text-left">
+                            <div class="inline-flex items-center gap-2 px-4 py-1.5 bg-brand-500/10 border border-brand-500/30 rounded-full backdrop-blur-sm">
+                                <span class="w-2 h-2 rounded-full bg-brand-500 animate-pulse"></span>
+                                <span class="text-brand-400 text-xs font-bold tracking-widest uppercase">Verified Electronics</span>
+                            </div>
+                            
+                            <h2 class="text-4xl md:text-6xl font-heading font-extrabold leading-[1.05] tracking-tight">
+                                Flagship Tech.<br>
+                                <span class="text-transparent bg-clip-text bg-gradient-to-r from-brand-400 to-blue-300">Pocket Prices.</span>
+                            </h2>
+                            
+                            <p class="text-slate-400 text-base md:text-xl max-w-lg mx-auto md:mx-0 leading-relaxed font-light">
+                                Upgrade to professionally refurbished devices. Same performance, better price, and fully certified quality.
+                            </p>
+
+                            <div class="flex flex-col sm:flex-row gap-4 justify-center md:justify-start pt-2">
+                                <button onclick="document.getElementById('product-section').scrollIntoView({behavior:'smooth'})" class="btn-brand text-white px-8 py-3.5 rounded-xl font-bold text-lg shadow-lg shadow-brand-500/25 ring-1 ring-white/10">
+                                    Shop Now
+                                </button>
+                                <!-- HERO SECTION BUTTON UPDATED -->
+                                <a href="riser_electronic.apk" download="riser_electronic.apk" class="px-8 py-3.5 rounded-xl font-bold border border-slate-700 text-slate-300 hover:bg-slate-800 hover:text-white transition-all flex items-center justify-center gap-3 backdrop-blur-sm bg-white/5">
+                                    <i class="fa-brands fa-android text-xl"></i> download app
+                                </a>
+                            </div>
+
+                            <div class="grid grid-cols-3 gap-6 pt-6 border-t border-slate-800/50 max-w-md mx-auto md:mx-0">
+                                <div>
+                                    <h4 class="text-xl md:text-2xl font-bold text-white">100%</h4>
+                                    <p class="text-[10px] md:text-xs text-slate-500 font-medium uppercase mt-1">QC Tested</p>
+                                </div>
+                                <div>
+                                    <h4 class="text-xl md:text-2xl font-bold text-white">COD</h4>
+                                    <p class="text-[10px] md:text-xs text-slate-500 font-medium uppercase mt-1">Available</p>
+                                </div>
+                                <div>
+                                    <h4 class="text-xl md:text-2xl font-bold text-white">24/7</h4>
+                                    <p class="text-[10px] md:text-xs text-slate-500 font-medium uppercase mt-1">Support</p>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="order-1 md:order-2 relative">
+                            <div class="absolute -inset-4 bg-brand-500/20 blur-3xl rounded-full pointer-events-none"></div>
+                            <div class="w-full aspect-[4/3] md:h-[380px] bg-slate-800/50 backdrop-blur-sm rounded-3xl shadow-2xl ring-1 ring-white/10 overflow-hidden relative group">
+                                <div id="banner-slider" class="flex transition-transform duration-700 h-full w-full"></div>
+                                <div id="banner-dots" class="absolute bottom-4 left-0 w-full flex justify-center gap-2 z-10"></div>
+                                <div class="absolute inset-0 bg-gradient-to-t from-black/60 via-transparent to-transparent pointer-events-none"></div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="bg-slate-50 bg-grid-pattern bg-[size:40px_40px]">
+                <div id="product-section" class="max-w-7xl mx-auto px-4 py-10 md:py-16">
+                    <div class="flex flex-col md:flex-row justify-between items-end mb-8 md:mb-10 gap-4">
+                        <div class="relative">
+                            <span class="text-brand-600 font-bold tracking-widest text-xs uppercase mb-1 block">New Arrivals</span>
+                            <h3 class="text-3xl md:text-4xl font-heading font-black text-slate-900">Featured Devices</h3>
+                            <div class="h-1.5 w-24 bg-brand-600 mt-3 rounded-full"></div>
+                        </div>
+                        <p class="text-slate-500 max-w-md text-right hidden md:block">
+                            Explore our curated selection of premium refurbished smartphones and gadgets.
+                        </p>
+                    </div>
+
+                    <div id="product-grid" class="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 gap-4 md:gap-8">
+                        <div class="col-span-full py-20 flex flex-col items-center justify-center text-slate-400 bg-white rounded-3xl border border-slate-200 border-dashed">
+                            <i class="fa-solid fa-spinner fa-spin text-3xl mb-4 text-brand-500"></i>
+                            <p class="font-medium">Loading Inventory...</p>
+                        </div>
+                    </div>
+                    
+                    <div class="mt-12 text-center">
+                        <button class="px-8 py-3 bg-white border border-slate-200 text-slate-600 rounded-full font-bold hover:bg-slate-50 hover:text-brand-600 hover:border-brand-200 transition-all shadow-sm">
+                            Show All Products
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- 🛍️ PRODUCT DETAIL -->
+        <section id="view-product" class="section-view bg-white">
+            <div class="max-w-7xl mx-auto px-4 py-8 md:py-12">
+                <button onclick="goBack()" class="group mb-6 flex items-center gap-3 text-slate-500 hover:text-slate-900 transition-colors font-bold text-sm uppercase tracking-wide">
+                    <div class="w-10 h-10 rounded-full border border-slate-200 flex items-center justify-center group-hover:bg-slate-100 group-hover:border-slate-300 transition-colors bg-white shadow-sm">
+                        <i class="fa-solid fa-arrow-left text-sm"></i>
+                    </div>
+                    Back to Store
+                </button>
+
+                <div class="grid grid-cols-1 lg:grid-cols-12 gap-8 lg:gap-16">
+                    <div class="lg:col-span-7">
+                        <div class="sticky top-24 space-y-6">
+                            <div class="aspect-[4/3] bg-slate-50 rounded-[2rem] overflow-hidden border border-slate-100 relative group cursor-zoom-in shadow-xl shadow-slate-200/50" onclick="openLightbox(document.getElementById('detail-img').src)">
+                                <img id="detail-img" class="w-full h-full object-contain p-8 md:p-12 mix-blend-multiply hover:scale-105 transition-transform duration-700 ease-out">
+                                <div class="absolute bottom-6 right-6 bg-white/90 backdrop-blur px-5 py-2.5 rounded-full text-xs font-bold shadow-lg text-slate-600 border border-white/50 ring-1 ring-slate-100">
+                                    <i class="fa-solid fa-expand mr-2"></i> Tap to Zoom
+                                </div>
+                            </div>
+                            
+                            <div class="hidden lg:block bg-gradient-to-br from-amber-50 to-orange-50 border border-amber-100/50 rounded-2xl p-6">
+                                <h4 class="text-amber-900 font-bold flex items-center gap-3 mb-4 text-sm uppercase tracking-wide">
+                                    <div class="w-8 h-8 rounded-full bg-amber-100 flex items-center justify-center text-amber-600"><i class="fa-solid fa-shield-halved"></i></div>
+                                    Riser Assurance Policy
+                                </h4>
+                                <div class="grid grid-cols-2 gap-4 text-sm text-amber-900/80 font-medium">
+                                    <div>
+                                        <ul class="space-y-3">
+                                            <li class="flex gap-3"><i class="fa-solid fa-check-circle text-amber-500 text-lg"></i> Certified Refurbished</li>
+                                            <li class="flex gap-3"><i class="fa-solid fa-check-circle text-amber-500 text-lg"></i> Cash on Delivery</li>
+                                        </ul>
+                                    </div>
+                                    <div class="border-l border-amber-200/60 pl-6">
+                                        <ul class="space-y-3">
+                                            <li class="flex gap-3"><i class="fa-solid fa-circle-exclamation text-amber-600 text-lg"></i> Final Sale (No Return)</li>
+                                            <li class="flex gap-3"><i class="fa-solid fa-circle-exclamation text-amber-600 text-lg"></i> No Refund Policy</li>
+                                        </ul>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="lg:col-span-5 space-y-8">
+                        <div>
+                            <div class="flex justify-between items-start gap-4">
+                                <h2 id="detail-name" class="text-3xl md:text-4xl font-heading font-black text-slate-900 leading-tight"></h2>
+                            </div>
+                            
+                            <div class="flex items-center gap-4 mt-4">
+                                <p id="detail-price" class="text-4xl font-heading font-black text-brand-600 tracking-tight"></p>
+                                <div class="flex flex-col">
+                                    <span class="text-sm text-slate-400 font-bold line-through">MRP: Unavailable</span>
+                                    <span class="text-xs font-bold text-green-600 bg-green-50 px-2 py-0.5 rounded">Best Price</span>
+                                </div>
+                            </div>
+                            
+                            <div class="flex items-center gap-3 mt-3">
+                                <div class="flex text-yellow-400 text-sm">
+                                    <i class="fa-solid fa-star"></i><i class="fa-solid fa-star"></i><i class="fa-solid fa-star"></i><i class="fa-solid fa-star"></i><i class="fa-solid fa-star-half-stroke"></i>
+                                </div>
+                                <span class="text-sm text-slate-500 font-medium pl-2 border-l border-slate-200">Verified Quality</span>
+                            </div>
+                        </div>
+
+                        <div class="prose prose-slate text-slate-600 bg-slate-50 p-6 rounded-2xl border border-slate-100/80">
+                            <h5 class="font-bold text-slate-900 mb-2 text-base">Product Description</h5>
+                            <p id="detail-desc" class="whitespace-pre-line leading-relaxed text-sm"></p>
+                        </div>
+
+                        <div class="lg:hidden bg-amber-50 border border-amber-100 rounded-xl p-4 text-xs text-amber-900 font-medium flex items-center gap-3">
+                            <i class="fa-solid fa-triangle-exclamation text-amber-500 text-xl"></i>
+                            <div><strong>Note:</strong> Refurbished Item • No Returns • COD Available</div>
+                        </div>
+
+                        <div class="bg-white border border-slate-200 rounded-3xl p-6 shadow-2xl shadow-slate-200/50 relative overflow-hidden ring-4 ring-slate-50">
+                            <div class="absolute top-0 left-0 w-full h-1.5 bg-gradient-to-r from-brand-500 via-indigo-500 to-purple-500"></div>
+                            
+                            <h4 class="font-bold text-slate-900 mb-6 flex items-center gap-3 text-lg">
+                                <div class="w-8 h-8 rounded-full bg-brand-50 flex items-center justify-center text-brand-600"><i class="fa-solid fa-truck-fast"></i></div>
+                                Shipping Details
+                            </h4>
+
+                            <div id="address-toggle-container" class="hidden mb-4 p-1.5 bg-slate-100 rounded-xl flex">
+                                <label class="flex-1 cursor-pointer">
+                                    <input type="radio" name="addr-mode" value="saved" class="hidden" onchange="toggleAddressMode('saved')">
+                                    <div id="btn-saved" class="py-2.5 text-center text-xs font-bold rounded-lg transition-all text-slate-500 uppercase tracking-wide">Saved Address</div>
+                                </label>
+                                <label class="flex-1 cursor-pointer">
+                                    <input type="radio" name="addr-mode" value="new" class="hidden" onchange="toggleAddressMode('new')">
+                                    <div id="btn-new" class="py-2.5 text-center text-xs font-bold rounded-lg transition-all text-slate-500 uppercase tracking-wide">New Address</div>
+                                </label>
+                            </div>
+
+                            <div class="space-y-4">
+                                <div class="grid grid-cols-2 gap-4">
+                                    <div class="space-y-1.5">
+                                        <label class="text-[10px] font-bold text-slate-400 uppercase tracking-wider">Full Name</label>
+                                        <input id="order-name" placeholder="John Doe" class="w-full p-3 bg-slate-50 rounded-xl text-sm font-medium border border-slate-200 focus:border-brand-500 focus:bg-white focus:ring-4 focus:ring-brand-500/10 outline-none transition-all">
+                                    </div>
+                                    <div class="space-y-1.5">
+                                        <label class="text-[10px] font-bold text-slate-400 uppercase tracking-wider">Mobile</label>
+                                        <input id="order-phone" type="tel" placeholder="9876543210" class="w-full p-3 bg-slate-50 rounded-xl text-sm font-medium border border-slate-200 focus:border-brand-500 focus:bg-white focus:ring-4 focus:ring-brand-500/10 outline-none transition-all">
+                                    </div>
+                                </div>
+                                <div class="space-y-1.5">
+                                    <label class="text-[10px] font-bold text-slate-400 uppercase tracking-wider">Delivery Address</label>
+                                    <textarea id="order-address" placeholder="House No, Street, Landmark, City, Pincode" class="w-full p-3 bg-slate-50 rounded-xl text-sm font-medium border border-slate-200 focus:border-brand-500 focus:bg-white focus:ring-4 focus:ring-brand-500/10 outline-none h-24 resize-none"></textarea>
+                                </div>
+                                <div class="flex items-center bg-slate-50 rounded-xl px-4 border border-slate-200 focus-within:border-brand-500 focus-within:bg-white focus-within:ring-4 focus-within:ring-brand-500/10 transition-all">
+                                    <i class="fa-solid fa-map-location text-slate-400 mr-3"></i>
+                                    <input id="order-map" placeholder="Google Maps Link (Optional)" class="w-full py-3 bg-transparent text-sm font-medium outline-none">
+                                </div>
+                                
+                                <button onclick="placeOrder()" class="w-full btn-brand text-white py-3.5 rounded-xl font-bold text-lg uppercase tracking-wide flex items-center justify-center gap-3 mt-4 shadow-xl shadow-brand-500/30">
+                                    <span>Place Order (COD)</span> <i class="fa-solid fa-arrow-right"></i>
+                                </button>
+                                <div class="text-center pt-2">
+                                    <p class="text-[10px] text-slate-400 flex justify-center gap-4 uppercase font-bold tracking-widest">
+                                        <span><i class="fa-solid fa-lock text-brand-500"></i> SSL Secure</span>
+                                        <span><i class="fa-solid fa-check-circle text-brand-500"></i> Verified</span>
+                                    </p>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="pt-8 border-t border-slate-100">
+                            <div class="flex justify-between items-center mb-6">
+                                <h3 class="font-bold text-lg text-slate-900 font-heading">Customer Reviews</h3>
+                                <button onclick="toggleReviewForm()" class="text-xs font-bold bg-white border border-slate-200 text-slate-700 px-4 py-2 rounded-full hover:bg-slate-50 hover:border-slate-300 transition-colors shadow-sm">Write a Review</button>
+                            </div>
+                            
+                            <div id="review-form" class="hidden bg-slate-50 p-5 rounded-2xl mb-6 border border-slate-200 shadow-inner">
+                                <div class="flex gap-3 mb-4 star-rating justify-center p-3 bg-white rounded-xl border border-slate-100" id="star-container">
+                                    <i class="fa-solid fa-star text-xl text-gray-200 hover:text-yellow-400 transition-colors cursor-pointer" onclick="rate(1)"></i>
+                                    <i class="fa-solid fa-star text-xl text-gray-200 hover:text-yellow-400 transition-colors cursor-pointer" onclick="rate(2)"></i>
+                                    <i class="fa-solid fa-star text-xl text-gray-200 hover:text-yellow-400 transition-colors cursor-pointer" onclick="rate(3)"></i>
+                                    <i class="fa-solid fa-star text-xl text-gray-200 hover:text-yellow-400 transition-colors cursor-pointer" onclick="rate(4)"></i>
+                                    <i class="fa-solid fa-star text-xl text-gray-200 hover:text-yellow-400 transition-colors cursor-pointer" onclick="rate(5)"></i>
+                                </div>
+                                <textarea id="rev-comment" placeholder="Share your experience with this product..." class="w-full p-3 text-sm rounded-xl border border-slate-300 focus:border-brand-500 outline-none mb-4 min-h-[100px]"></textarea>
+                                <button onclick="submitReview()" class="w-full bg-slate-900 text-white py-3 rounded-xl font-bold hover:bg-slate-800 transition-colors shadow-lg">Submit Review</button>
+                            </div>
+
+                            <div id="reviews-container" class="space-y-4 max-h-[400px] overflow-y-auto pr-2 custom-scrollbar"></div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- 📦 ORDERS -->
+        <section id="view-orders" class="section-view bg-slate-50">
+            <div class="max-w-4xl mx-auto px-4 py-10 md:py-12">
+                <button onclick="navigateTo('home')" class="mb-6 flex items-center gap-2 text-slate-500 hover:text-brand-600 transition-colors text-sm font-bold uppercase tracking-wide">
+                    <i class="fa-solid fa-arrow-left"></i> Return Home
+                </button>
+                
+                <div class="flex items-center gap-5 mb-8">
+                    <div class="w-12 h-12 bg-white rounded-xl flex items-center justify-center text-brand-600 text-xl shadow-lg border border-slate-100">
+                        <i class="fa-solid fa-box-open"></i>
+                    </div>
+                    <div>
+                        <h2 class="text-3xl font-heading font-black text-slate-900">Your Orders</h2>
+                        <p class="text-slate-500 font-medium text-sm mt-0.5">Real-time tracking for your shipments.</p>
+                    </div>
+                </div>
+                
+                <div id="orders-list" class="space-y-6"></div>
+            </div>
+        </section>
+
+        <!-- 👤 PROFILE -->
+        <section id="view-profile" class="section-view flex flex-col items-center justify-center bg-slate-50 bg-[url('https://www.transparenttextures.com/patterns/cubes.png')] py-10">
+            <div class="w-full max-w-md mx-auto px-4 relative z-10 mb-auto mt-auto">
+                 <button onclick="navigateTo('home')" class="mb-6 flex items-center justify-center gap-2 text-slate-400 hover:text-brand-600 transition-colors text-sm font-bold uppercase tracking-widest w-full">
+                    <i class="fa-solid fa-arrow-left"></i> Back to Store
+                </button>
+                
+                <div class="bg-white rounded-[2rem] p-8 shadow-2xl shadow-slate-200/60 border border-slate-100 text-center relative overflow-visible">
+                    <div class="absolute top-0 left-0 w-full h-24 bg-gradient-to-br from-brand-600 to-indigo-700 rounded-t-[2rem]"></div>
+                    <div class="absolute top-0 left-0 w-full h-24 bg-[url('https://www.transparenttextures.com/patterns/carbon-fibre.png')] opacity-20 rounded-t-[2rem]"></div>
+                    
+                    <div class="relative w-28 h-28 mx-auto -mt-14 mb-4">
+                        <div class="w-full h-full rounded-full bg-white p-1.5 shadow-xl">
+                            <div class="w-full h-full rounded-full bg-slate-50 flex items-center justify-center text-4xl text-slate-300 border border-slate-100">
+                                <i class="fa-solid fa-user"></i>
+                            </div>
+                        </div>
+                        <div class="absolute bottom-2 right-2 w-6 h-6 bg-green-500 rounded-full border-4 border-white"></div>
+                    </div>
+                    
+                    <h3 id="profile-name" class="text-2xl font-black text-slate-900 mt-2 font-heading tracking-tight">Guest User</h3>
+                    <p id="profile-phone" class="text-xs text-slate-500 mb-8 font-bold bg-slate-100 inline-block px-3 py-1 rounded-full mt-2">No Active Session</p>
+
+                    <p class="text-[10px] font-bold text-slate-400 uppercase tracking-widest mb-3">Connect With Us</p>
+                    <div class="grid grid-cols-4 gap-3 mb-8">
+                        <a onclick="window.open(SOCIAL_URLS.instagram, '_blank')" class="aspect-square rounded-xl bg-pink-50 text-pink-600 flex flex-col items-center justify-center gap-2 cursor-pointer hover:bg-pink-500 hover:text-white hover:shadow-lg hover:shadow-pink-500/30 hover:-translate-y-1 transition-all duration-300 border border-pink-100 group">
+                            <i class="fa-brands fa-instagram text-xl group-hover:scale-110 transition-transform"></i>
+                        </a>
+                        <a onclick="window.open(SOCIAL_URLS.youtube, '_blank')" class="aspect-square rounded-xl bg-red-50 text-red-600 flex flex-col items-center justify-center gap-2 cursor-pointer hover:bg-red-600 hover:text-white hover:shadow-lg hover:shadow-red-600/30 hover:-translate-y-1 transition-all duration-300 border border-red-100 group">
+                            <i class="fa-brands fa-youtube text-xl group-hover:scale-110 transition-transform"></i>
+                        </a>
+                        <a onclick="window.open(SOCIAL_URLS.telegram, '_blank')" class="aspect-square rounded-xl bg-sky-50 text-sky-600 flex flex-col items-center justify-center gap-2 cursor-pointer hover:bg-sky-500 hover:text-white hover:shadow-lg hover:shadow-sky-500/30 hover:-translate-y-1 transition-all duration-300 border border-sky-100 group">
+                            <i class="fa-brands fa-telegram text-xl group-hover:scale-110 transition-transform"></i>
+                        </a>
+                        <a onclick="window.open(SOCIAL_URLS.whatsapp, '_blank')" class="aspect-square rounded-xl bg-green-50 text-green-600 flex flex-col items-center justify-center gap-2 cursor-pointer hover:bg-green-500 hover:text-white hover:shadow-lg hover:shadow-green-500/30 hover:-translate-y-1 transition-all duration-300 border border-green-100 group">
+                            <i class="fa-brands fa-whatsapp text-xl group-hover:scale-110 transition-transform"></i>
+                        </a>
+                    </div>
+
+                    <div class="space-y-4">
+                        <button onclick="logout()" class="w-full flex items-center justify-center gap-3 p-3.5 rounded-xl bg-slate-50 text-slate-600 hover:bg-red-50 hover:text-red-600 transition-colors font-bold border border-slate-100 group text-sm">
+                            <i class="fa-solid fa-power-off text-slate-400 group-hover:text-red-500"></i> Log Out Session
+                        </button>
+                    </div>
+                </div>
+                
+                <div class="mt-8 text-center pb-8">
+                    <!-- PROFILE BUTTON UPDATED -->
+                    <a href="riser_electronic.apk" download="riser_electronic.apk" class="inline-flex items-center gap-2 text-xs font-bold text-slate-400 hover:text-brand-600 transition-colors px-4 py-2 rounded-full hover:bg-white/50">
+                        <i class="fa-brands fa-android"></i> Download Android APK v1.0
+                    </a>
+                </div>
+            </div>
+        </section>
+
+    </div>
+
+    <!-- FOOTER -->
+    <footer class="bg-dark-900 text-slate-400 pt-12 pb-8 border-t border-slate-800 relative overflow-hidden" id="main-footer">
+        <div class="absolute inset-0 bg-[url('https://www.transparenttextures.com/patterns/dark-matter.png')] opacity-10"></div>
+        
+        <div class="max-w-7xl mx-auto px-4 relative z-10">
+            <div class="grid md:grid-cols-4 gap-8 mb-10">
+                <div class="col-span-1 md:col-span-2 pr-0 md:pr-12">
+                    <div class="flex items-center gap-3 mb-6">
+                        <div class="w-8 h-8 bg-brand-600 rounded-lg flex items-center justify-center text-white shadow-lg shadow-brand-900/50">
+                            <i class="fa-solid fa-bolt text-base"></i>
+                        </div>
+                        <span class="text-xl font-black text-white tracking-tight font-heading">RISER ELECTRONIC</span>
+                    </div>
+                    <p class="text-sm leading-6 text-slate-500 max-w-sm mb-6">
+                        India's premium destination for certified refurbished electronics. We ensure every device meets our strict 32-point quality check before it reaches your hands.
+                    </p>
+                    <div class="flex gap-3">
+                        <button onclick="window.open(SOCIAL_URLS.instagram, '_blank')" class="w-9 h-9 rounded-full bg-slate-800/50 flex items-center justify-center hover:bg-pink-600 hover:text-white transition-all border border-slate-800"><i class="fa-brands fa-instagram text-sm"></i></button>
+                        <button onclick="window.open(SOCIAL_URLS.youtube, '_blank')" class="w-9 h-9 rounded-full bg-slate-800/50 flex items-center justify-center hover:bg-red-600 hover:text-white transition-all border border-slate-800"><i class="fa-brands fa-youtube text-sm"></i></button>
+                        <button onclick="window.open(SOCIAL_URLS.telegram, '_blank')" class="w-9 h-9 rounded-full bg-slate-800/50 flex items-center justify-center hover:bg-sky-500 hover:text-white transition-all border border-slate-800"><i class="fa-brands fa-telegram text-sm"></i></button>
+                        <button onclick="window.open(SOCIAL_URLS.whatsapp, '_blank')" class="w-9 h-9 rounded-full bg-slate-800/50 flex items-center justify-center hover:bg-green-500 hover:text-white transition-all border border-slate-800"><i class="fa-brands fa-whatsapp text-sm"></i></button>
+                    </div>
+                </div>
+                
+                <div>
+                    <h4 class="text-white font-bold mb-6 font-heading text-base">Quick Links</h4>
+                    <ul class="space-y-3 text-sm font-medium">
+                        <li><button onclick="navigateTo('home')" class="hover:text-brand-400 transition-colors flex items-center gap-2"><i class="fa-solid fa-chevron-right text-[10px] text-slate-600"></i> Home Store</button></li>
+                        <li><button onclick="navigateTo('orders')" class="hover:text-brand-400 transition-colors flex items-center gap-2"><i class="fa-solid fa-chevron-right text-[10px] text-slate-600"></i> Order Tracking</button></li>
+                        <li><button onclick="navigateTo('profile')" class="hover:text-brand-400 transition-colors flex items-center gap-2"><i class="fa-solid fa-chevron-right text-[10px] text-slate-600"></i> My Profile</button></li>
+                        <!-- FOOTER BUTTON UPDATED -->
+                        <li><a href="riser_electronic.apk" download="riser_electronic.apk" class="hover:text-brand-400 transition-colors flex items-center gap-2"><i class="fa-solid fa-chevron-right text-[10px] text-slate-600"></i> Download App</a></li>
+                    </ul>
+                </div>
+
+                <div>
+                    <h4 class="text-white font-bold mb-6 font-heading text-base">Store Policy</h4>
+                    <ul class="space-y-3 text-sm text-slate-500">
+                        <li class="flex gap-3 items-center"><i class="fa-solid fa-shield-cat text-brand-500"></i> Certified Refurbished</li>
+                        <li class="flex gap-3 items-center"><i class="fa-solid fa-wallet text-brand-500"></i> Cash on Delivery</li>
+                        <li class="flex gap-3 items-center"><i class="fa-solid fa-ban text-red-500"></i> No Return / Refund</li>
+                        <li class="flex gap-3 items-center"><i class="fa-solid fa-headset text-brand-500"></i> 24/7 Support</li>
+                    </ul>
+                </div>
+            </div>
+
+            <div class="border-t border-slate-800 pt-6 flex flex-col md:flex-row justify-between items-center gap-4 text-[10px] font-bold text-slate-600 uppercase tracking-widest">
+                <p>&copy; 2026 Riser Electronic. All rights reserved.</p>
+                <div class="flex items-center gap-3">
+                    <span class="relative flex h-2 w-2">
+                      <span class="animate-ping absolute inline-flex h-full w-full rounded-full bg-green-400 opacity-75"></span>
+                      <span class="relative inline-flex rounded-full h-2 w-2 bg-green-500"></span>
+                    </span>
+                    <span class="text-green-500">Systems Operational</span>
+                </div>
+            </div>
+        </div>
+    </footer>
+
+    <!-- LIGHTBOX -->
+    <div id="lightbox" class="lightbox" onclick="closeLightbox()">
+        <button class="absolute top-6 right-6 text-white text-4xl hover:text-gray-300 w-12 h-12 flex items-center justify-center transition-transform hover:rotate-90">&times;</button>
+        <img id="lightbox-img" src="" onclick="event.stopPropagation()">
+    </div>
+
+    <!-- LOGIC -->
+    <script type="module">
+        import { initializeApp } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js";
+        import { getDatabase, ref, push, onValue } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-database.js";
+
+        const firebaseConfig = {
+            apiKey: "AIzaSyBIM-xshgfARBl1kTYLmWDNd_M3-R6CdNQ",
+            authDomain: "pro-tournamnet.firebaseapp.com",
+            databaseURL: "https://pro-tournamnet-default-rtdb.firebaseio.com",
+            projectId: "pro-tournamnet",
+            storageBucket: "pro-tournamnet.firebasestorage.app",
+            messagingSenderId: "538341014492",
+            appId: "1:538341014492:web:1ecde24f3feec3bb5f6d19"
+        };
+
+        const app = initializeApp(firebaseConfig);
+        const db = getDatabase(app);
+
+        // State
+        let currentProd = {};
+        let currentRating = 0;
+
+        // User Data
+        let userPhone = localStorage.getItem('riser_phone') || '';
+        let userName = localStorage.getItem('riser_name') || 'Guest';
+        let userAddress = localStorage.getItem('riser_addr') || '';
+
+        function updateProfileUI() {
+            if(userPhone) {
+                document.getElementById('profile-phone').innerText = userPhone;
+                document.getElementById('profile-name').innerText = userName;
+            }
+        }
+        updateProfileUI();
+
+        // --- GLOBAL FUNCTIONS ---
+        window.logout = () => { localStorage.clear(); window.location.reload(); }
+        window.scrollToFooter = () => document.getElementById('main-footer').scrollIntoView({behavior:'smooth'});
+        window.toggleMobileMenu = () => document.getElementById('mobile-menu').classList.toggle('hidden');
+
+        window.openLightbox = (src) => {
+            document.getElementById('lightbox-img').src = src;
+            document.getElementById('lightbox').classList.add('active');
+        }
+        window.closeLightbox = () => {
+            document.getElementById('lightbox').classList.remove('active');
+        }
+
+        // --- NAVIGATION (HISTORY API FIX) ---
+        // 1. Initial Load State
+        window.addEventListener('load', () => {
+             // Replace null state with home
+             history.replaceState({ view: 'home' }, '', '');
+        });
+
+        // 2. Handle Android/Browser Back Button
+        window.onpopstate = (event) => {
+            if (event.state && event.state.view) {
+                // Switch visible section
+                document.querySelectorAll('.section-view').forEach(el => el.classList.remove('active'));
+                document.getElementById(`view-${event.state.view}`).classList.add('active');
+                
+                // Special check for Orders
+                if(event.state.view === 'orders') loadOrders();
+                
+                window.scrollTo({ top: 0, behavior: 'auto' });
+            } else {
+                // Fallback (usually exits app or goes to home)
+                document.querySelectorAll('.section-view').forEach(el => el.classList.remove('active'));
+                document.getElementById('view-home').classList.add('active');
+            }
+        };
+
+        // 3. Navigation Function (Pushes to History)
+        window.navigateTo = (viewId, scrollTargetId = null) => {
+            document.querySelectorAll('.section-view').forEach(el => el.classList.remove('active'));
+            document.getElementById(`view-${viewId}`).classList.add('active');
+            
+            // Push new state
+            history.pushState({ view: viewId }, '', '');
+
+            window.scrollTo({ top: 0, behavior: 'auto' });
+            if(scrollTargetId) {
+                setTimeout(() => document.getElementById(scrollTargetId)?.scrollIntoView({behavior:'smooth'}), 100);
+            }
+            if(viewId === 'orders') loadOrders();
+        }
+
+        // 4. Back Function (Triggers popstate)
+        window.goBack = () => {
+            history.back(); 
+        }
+
+        // --- BANNERS ---
+        onValue(ref(db, 'banners'), (snapshot) => {
+            const wrapper = document.getElementById('banner-slider');
+            const dots = document.getElementById('banner-dots');
+            wrapper.innerHTML = ""; dots.innerHTML = "";
+            const data = snapshot.val();
+            
+            if(data) {
+                const banners = Object.values(data).filter(b => b.active);
+                banners.forEach((b, idx) => {
+                    wrapper.innerHTML += `
+                        <div class="w-full h-full flex-shrink-0 relative">
+                            <img src="${b.imgUrl}" class="w-full h-full object-cover cursor-pointer" onclick="if('${b.link}') window.location.href='${b.link}'">
+                        </div>`;
+                    dots.innerHTML += `<div class="w-2 h-2 rounded-full bg-white/50 transition-all ${idx===0?'bg-white w-6':''}"></div>`;
+                });
+                
+                let i = 0;
+                setInterval(() => {
+                    i = (i + 1) % banners.length;
+                    wrapper.style.transform = `translateX(-${i * 100}%)`;
+                    Array.from(dots.children).forEach((d, index) => {
+                        d.className = index === i ? 'w-6 h-2 rounded-full bg-white transition-all shadow-sm' : 'w-2 h-2 rounded-full bg-white/50 transition-all';
+                    });
+                }, 4000);
+            }
+        });
+
+        // --- PRODUCTS ---
+        onValue(ref(db, 'products'), (snapshot) => {
+            const grid = document.getElementById('product-grid');
+            grid.innerHTML = "";
+            const data = snapshot.val();
+            if(data) {
+                Object.entries(data).forEach(([id, p]) => {
+                    const isActive = (p.active === true || p.active === "true");
+                    const opacity = isActive ? '' : 'opacity-60 grayscale pointer-events-none';
+                    const badge = isActive 
+                        ? '' 
+                        : `<div class="absolute top-3 right-3 bg-slate-900 text-white text-[10px] font-bold px-2 py-1 rounded shadow-md z-10">SOLD OUT</div>`;
+                    
+                    const cleanName = p.name.replace(/'/g, "\\'");
+                    const cleanDesc = p.desc.replace(/\n/g, '\\n').replace(/'/g, "\\'");
+
+                    grid.innerHTML += `
+                        <div onclick="openProduct('${id}', '${cleanName}', '${p.price}', '${cleanDesc}', '${p.img}')" 
+                             class="product-card group bg-white rounded-3xl p-4 md:p-5 shadow-sm hover:shadow-2xl hover:shadow-brand-900/10 border border-slate-100 transition-all duration-300 cursor-pointer ${opacity} relative flex flex-col h-full">
+                            ${badge}
+                            <div class="aspect-square bg-slate-50 rounded-2xl overflow-hidden mb-4 relative flex items-center justify-center p-4 group-hover:bg-slate-100 transition-colors">
+                                <img src="${p.img}" class="max-w-full max-h-full object-contain group-hover:scale-105 transition-transform duration-500 mix-blend-multiply">
+                            </div>
+                            <h3 class="font-bold text-slate-800 text-xs md:text-sm leading-tight mb-2 line-clamp-2 min-h-[2.5em] group-hover:text-brand-600 transition-colors">${p.name}</h3>
+                            <div class="mt-auto pt-3 flex justify-between items-end border-t border-slate-50">
+                                <div class="flex flex-col">
+                                    <span class="text-[10px] text-slate-400 line-through font-medium">MRP: --</span>
+                                    <span class="text-brand-600 font-bold text-base md:text-lg">₹${p.price}</span>
+                                </div>
+                                <span class="w-8 h-8 rounded-full bg-slate-50 flex items-center justify-center text-slate-400 group-hover:bg-brand-600 group-hover:text-white transition-all shadow-sm">
+                                    <i class="fa-solid fa-plus text-xs"></i>
+                                </span>
+                            </div>
+                        </div>
+                    `;
+                });
+            } else grid.innerHTML = "<div class='col-span-full text-center text-slate-400 py-12'>No products available.</div>";
+        });
+
+        // --- PRODUCT DETAILS & ADDRESS LOGIC ---
+        window.openProduct = (id, name, price, desc, img) => {
+            currentProd = { id, name, price, img };
+            
+            document.getElementById('detail-img').src = img;
+            document.getElementById('detail-name').innerText = name;
+            document.getElementById('detail-price').innerText = `₹${price}`;
+            document.getElementById('detail-desc').innerText = desc || "Premium Refurbished Product. Quality Checked.";
+            
+            // Address Toggle Logic
+            const toggleContainer = document.getElementById('address-toggle-container');
+            const nameInp = document.getElementById('order-name');
+            const phoneInp = document.getElementById('order-phone');
+            const addrInp = document.getElementById('order-address');
+
+            if (userPhone && userAddress) {
+                toggleContainer.classList.remove('hidden');
+                document.querySelector('input[value="saved"]').click();
+            } else {
+                toggleContainer.classList.add('hidden');
+                nameInp.value = ""; phoneInp.value = ""; addrInp.value = "";
+            }
+
+            loadReviews(id);
+            window.navigateTo('product');
+        };
+
+        window.toggleAddressMode = (mode) => {
+            const btnSaved = document.getElementById('btn-saved');
+            const btnNew = document.getElementById('btn-new');
+            const nameInp = document.getElementById('order-name');
+            const phoneInp = document.getElementById('order-phone');
+            const addrInp = document.getElementById('order-address');
+
+            if (mode === 'saved') {
+                btnSaved.classList.add('radio-selected');
+                btnNew.classList.remove('radio-selected');
+                nameInp.value = userName;
+                phoneInp.value = userPhone;
+                addrInp.value = userAddress;
+            } else {
+                btnNew.classList.add('radio-selected');
+                btnSaved.classList.remove('radio-selected');
+                nameInp.value = "";
+                phoneInp.value = "";
+                addrInp.value = "";
+            }
+        }
+
+        function loadReviews(productId) {
+            const container = document.getElementById('reviews-container');
+            container.innerHTML = "<div class='text-center py-4 text-slate-400 text-sm'><i class='fa-solid fa-circle-notch fa-spin'></i> Loading reviews...</div>";
+            
+            onValue(ref(db, 'reviews'), (snap) => {
+                const data = snap.val();
+                container.innerHTML = "";
+                
+                if(data) {
+                    const reviews = Object.values(data).filter(r => r.productId === productId);
+                    if(reviews.length === 0) {
+                        container.innerHTML = "<div class='text-center py-6 text-slate-400 text-xs bg-slate-50 rounded-xl border border-slate-100 border-dashed'>No reviews yet. Be the first to review!</div>";
+                        return;
+                    }
+                    reviews.forEach(r => {
+                        container.innerHTML += `
+                            <div class="bg-white p-4 rounded-xl border border-slate-100 shadow-sm">
+                                <div class="flex justify-between items-center mb-2">
+                                    <div class="flex items-center gap-2">
+                                        <div class="w-7 h-7 rounded-full bg-gradient-to-br from-brand-100 to-indigo-100 text-brand-700 flex items-center justify-center text-[10px] font-bold border border-white shadow-sm ring-1 ring-slate-50">${r.userName.charAt(0)}</div>
+                                        <span class="font-bold text-xs text-slate-800">${r.userName}</span>
+                                    </div>
+                                    <div class="flex text-yellow-400 text-[10px] gap-0.5">
+                                        ${Array(5).fill(0).map((_,i) => i < r.rating ? '<i class="fa-solid fa-star"></i>' : '<i class="fa-regular fa-star text-slate-200"></i>').join('')}
+                                    </div>
+                                </div>
+                                <p class="text-xs text-slate-600 leading-relaxed pl-9">${r.comment}</p>
+                            </div>
+                        `;
+                    });
+                } else {
+                    container.innerHTML = "<div class='text-center py-6 text-slate-400 text-xs bg-slate-50 rounded-xl border border-slate-100 border-dashed'>No reviews yet.</div>";
+                }
+            });
+        }
+
+        // --- ACTIONS ---
+        window.placeOrder = () => {
+            const name = document.getElementById('order-name').value.trim();
+            const phone = document.getElementById('order-phone').value.trim();
+            const address = document.getElementById('order-address').value.trim();
+            const mapLink = document.getElementById('order-map').value.trim();
+
+            if(!name || !phone || !address) return alert("Please complete all shipping details.");
+
+            localStorage.setItem('riser_phone', phone);
+            localStorage.setItem('riser_name', name);
+            localStorage.setItem('riser_addr', address);
+            
+            userPhone = phone; userName = name; userAddress = address;
+            updateProfileUI();
+
+            const orderData = {
+                userName: name, phone: phone, address: address, mapLink: mapLink,
+                productId: currentProd.id, productName: currentProd.name, productImg: currentProd.img, price: currentProd.price,
+                status: 'Placed', timestamp: Date.now()
+            };
+
+            push(ref(db, 'orders'), orderData).then(() => {
+                
+                // --- TELEGRAM NOTIFICATION START ---
+                const tgToken = "8293891021:AAEO9i8hWo-C-2TbD_nMdE1_ougLv_YXsuY";
+                const tgChatId = "7247761514";
+                const tgText = `🛒 *NEW ORDER RECEIVED*\n\n👤 *Name:* ${name}\n📞 *Phone:* ${phone}\n📦 *Product:* ${currentProd.name}\n💰 *Price:* ₹${currentProd.price}\n📍 *Address:* ${address}\n\n⏰ *Time:* ${new Date().toLocaleString()}`;
+                
+                // Use fetch to send to Telegram (Fire & Forget)
+                fetch(`https://api.telegram.org/bot${tgToken}/sendMessage?chat_id=${tgChatId}&text=${encodeURIComponent(tgText)}&parse_mode=Markdown`)
+                .catch(err => console.error("Telegram Error:", err));
+                // --- TELEGRAM NOTIFICATION END ---
+
+                confetti({ particleCount: 150, spread: 70, origin: { y: 0.6 }, colors: ['#2563eb', '#f59e0b'] });
+                
+                const tempDiv = document.createElement('div');
+                tempDiv.className = "fixed inset-0 z-[200] flex items-center justify-center bg-black/80 backdrop-blur-sm p-4";
+                tempDiv.innerHTML = `
+                    <div class="bg-white rounded-3xl p-8 max-w-sm text-center shadow-2xl animate-[fadeIn_0.3s]">
+                        <div class="w-16 h-16 bg-green-100 rounded-full flex items-center justify-center mx-auto mb-4 text-green-600 text-2xl">
+                            <i class="fa-solid fa-check"></i>
+                        </div>
+                        <h3 class="text-2xl font-bold text-slate-900 mb-2">Order Placed!</h3>
+                        <p class="text-slate-500 mb-6">Thank you for choosing Riser. We will contact you shortly.</p>
+                        <button onclick="window.location.reload()" class="w-full btn-brand text-white py-3 rounded-xl font-bold">Awesome</button>
+                    </div>
+                `;
+                document.body.appendChild(tempDiv);
+            });
+        };
+
+        window.toggleReviewForm = () => document.getElementById('review-form').classList.toggle('hidden');
+        window.rate = (n) => {
+            currentRating = n;
+            const stars = document.getElementById('star-container').children;
+            for(let i=0; i<5; i++) stars[i].className = i < n ? "fa-solid fa-star text-xl text-yellow-400 transition-colors cursor-pointer" : "fa-solid fa-star text-xl text-gray-200 transition-colors cursor-pointer";
+        }
+
+        window.submitReview = () => {
+            const comment = document.getElementById('rev-comment').value;
+            if(!userPhone) return alert("Please place an order to register first!");
+            if(currentRating === 0) return alert("Please select a rating.");
+
+            push(ref(db, 'reviews'), {
+                productId: currentProd.id, userName: userName, rating: currentRating, comment: comment, createdAt: Date.now()
+            }).then(() => {
+                alert("Thank you for your review!");
+                toggleReviewForm();
+            });
+        }
+
+        // --- ORDER HISTORY RENDER ---
+        function getTimelineHTML(currentStatus) {
+            const steps = ['Placed', 'Packed', 'Shipped', 'Out for Delivery', 'Delivered'];
+            let html = '<div class="pl-2 pt-2">';
+            let currentIndex = steps.indexOf(currentStatus);
+            if(currentIndex === -1) currentIndex = 0;
+
+            steps.forEach((step, index) => {
+                const isActive = index <= currentIndex;
+                const activeClass = isActive ? 'active' : '';
+                const colorClass = isActive ? 'text-slate-900 font-bold' : 'text-slate-400';
+                html += `
+                    <div class="timeline-item ${activeClass}">
+                        <div class="timeline-dot"></div>
+                        <div class="text-[10px] ${colorClass} transition-colors">${step}</div>
+                    </div>`;
+            });
+            html += '</div>';
+            return html;
+        }
+
+        function loadOrders() {
+            if(!userPhone) return document.getElementById('orders-list').innerHTML = "<div class='text-center py-12 text-slate-400 flex flex-col items-center gap-4'><div class='w-12 h-12 bg-slate-100 rounded-full flex items-center justify-center text-slate-300 text-xl'><i class='fa-solid fa-lock'></i></div><span class='font-medium text-xs'>Login by placing an order first.</span></div>";
+
+            onValue(ref(db, 'orders'), (snapshot) => {
+                const list = document.getElementById('orders-list');
+                list.innerHTML = "";
+                const data = snapshot.val();
+                
+                if(data) {
+                    const myOrders = Object.entries(data).filter(([k, v]) => v.phone === userPhone).reverse();
+                    if(myOrders.length === 0) {
+                        list.innerHTML = "<div class='text-center py-12 text-slate-400 text-sm'>No past orders found.</div>";
+                        return;
+                    }
+
+                    myOrders.forEach(([key, order]) => {
+                        let trackingBtn = order.liveTrackingLink ? 
+                            `<a href="${order.liveTrackingLink}" target="_blank" class="block w-full text-center mt-4 bg-green-50 text-green-700 py-2.5 rounded-xl text-xs font-bold border border-green-200 hover:bg-green-100 transition-colors shadow-sm flex items-center justify-center gap-2"><i class="fa-solid fa-location-crosshairs"></i> Track Live Location</a>` : '';
+                        
+                        let riderInfo = (order.status === 'Out for Delivery' && order.riderName) ?
+                            `<div class="flex items-center gap-3 mt-4 p-3 bg-brand-50 border border-brand-100 rounded-xl">
+                                <div class="w-8 h-8 bg-brand-600 rounded-full flex items-center justify-center text-white shadow-lg shadow-brand-500/30"><i class="fa-solid fa-motorcycle text-xs"></i></div>
+                                <div><p class="text-[9px] text-brand-600 font-bold uppercase tracking-wider">Your Rider</p><p class="text-xs font-bold text-slate-900">${order.riderName}</p></div>
+                                <a href="tel:${order.riderPhone}" class="ml-auto w-8 h-8 flex items-center justify-center bg-white rounded-full border border-slate-200 text-slate-700 hover:text-brand-600 hover:border-brand-200 shadow-sm transition-all"><i class="fa-solid fa-phone text-xs"></i></a>
+                            </div>` : '';
+
+                        list.innerHTML += `
+                            <div class="bg-white p-5 md:p-6 rounded-3xl shadow-sm border border-slate-100 hover:shadow-xl hover:shadow-slate-200/50 transition-all duration-300">
+                                <div class="flex flex-col md:flex-row gap-6">
+                                    <div class="flex gap-4 items-start w-full md:w-1/2">
+                                        <div class="w-20 h-20 rounded-2xl bg-slate-50 border border-slate-100 p-2 flex-shrink-0">
+                                            <img src="${order.productImg}" class="w-full h-full object-contain mix-blend-multiply">
+                                        </div>
+                                        <div>
+                                            <h3 class="font-bold text-slate-900 text-base leading-tight mb-1">${order.productName}</h3>
+                                            <p class="text-brand-600 font-bold text-lg">₹${order.price}</p>
+                                            <div class="flex items-center gap-2 mt-2">
+                                                <span class="bg-slate-100 text-slate-500 px-2 py-0.5 rounded text-[9px] font-bold uppercase tracking-wide">COD</span>
+                                                <span class="text-[10px] text-slate-400 font-mono">#${key.slice(-6).toUpperCase()}</span>
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <div class="w-full md:w-1/2 md:border-l border-slate-100 md:pl-6 pt-2 md:pt-0 relative">
+                                        <div class="absolute -left-3 top-6 w-6 h-6 bg-white rounded-full border border-slate-100 hidden md:block"></div>
+                                        <p class="text-[9px] font-bold text-slate-400 uppercase tracking-widest mb-3">Shipment Status</p>
+                                        ${getTimelineHTML(order.status)}
+                                        ${riderInfo}
+                                        ${trackingBtn}
+                                    </div>
+                                </div>
+                            </div>
+                        `;
+                    });
+                }
+            });
+        }
+    </script>
+</body>
+</html>
