@@ -239,6 +239,14 @@
         document.getElementById('nonStrikerBalls').textContent = data.players?.nonStriker?.balls || 0;
         
         document.getElementById('bowlerName').textContent = data.players?.bowler?.name || 'Bowler';
+
+        // Updating YouTube Video if changed
+        if (data.youtubeURL) {
+            const ytPlayer = document.getElementById('youtubePlayer');
+            if (ytPlayer.src !== data.youtubeURL) {
+                ytPlayer.src = data.youtubeURL;
+            }
+        }
         
         // Ball Tracker setup
         const ballTracker = document.getElementById('ballTracker');
@@ -286,16 +294,25 @@
                     overlayText.textContent = showText;
                     
                     // Pehle purani classes hata kar animation clear karo
-                    overlay.className = 'animation-overlay active';
+                    overlay.className = 'animation-overlay';
                     overlayText.style.animation = 'none';
                     
                     // Trick to force browser to re-render (Animation restart karne ke liye)
                     void overlayText.offsetWidth; 
                     
                     // Ab nayi class do aur animation chalao
+                    overlay.classList.add('active');
                     overlay.classList.add(applyClass);
                     overlayText.style.animation = '';
 
-                    // 3 seconds baad overlay chupao
+                    // 3 seconds baad overlay chupao (Yeh part miss ho gaya tha)
                     setTimeout(() => {
-         
+                        overlay.className = 'animation-overlay'; // Screen clear kar dega
+                    }, 3000);
+                }
+            }
+        }
+    });
+</script>
+</body>
+</html>
