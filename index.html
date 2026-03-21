@@ -1,3 +1,4 @@
+<!-- index.html -->
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -5,11 +6,10 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
     <title>Live Cricket Scoreboard - Professional</title>
     <style>
-        /* Using Poppins for a clean, modern, professional look */
         @import url('https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600;700;800&display=swap');
 
         :root {
-            --bar-height: 85px; 
+            --bar-height: 75px; 
             --primary-text: #ffffff;
             --secondary-text: #a0aec0;
             --accent-color: #ffde00; 
@@ -17,6 +17,7 @@
             --four-color: #00aaff;
             --six-color: #ff00cc;
             --wicket-color: #ff4444;
+            --noball-color: #ffaa00;
         }
 
         body {
@@ -37,12 +38,11 @@
             top: 0; left: 0;
             width: 100%; height: 100%;
             border: none;
-            z-index: 1; /* Player background mein rahega */
+            z-index: 1; 
+            transition: opacity 0.5s ease;
         }
 
-        /* ==========================================
-           NEW: SOUND INTERACTION OVERLAY FIX
-           ========================================== */
+        /* SOUND INTERACTION OVERLAY */
         .interaction-overlay {
             position: fixed;
             top: 0; left: 0; width: 100vw; height: 100vh;
@@ -51,7 +51,7 @@
             display: flex;
             justify-content: center;
             align-items: center;
-            z-index: 9999999; /* Sabse upar rahega jab tak click na ho */
+            z-index: 9999999; 
             font-size: 26px;
             font-weight: 700;
             cursor: pointer;
@@ -63,7 +63,32 @@
         }
         .interaction-overlay:hover { background: rgba(0,0,0,0.95); color: var(--accent-color); }
 
-        /* --- PROFESSIONAL SCOREBOARD STYLE --- */
+        /* TIMERS OVERLAY (INNINGS & OVERS) */
+        .break-overlay {
+            position: fixed;
+            top: 0; left: 0; width: 100vw; height: 100vh;
+            background: #000;
+            display: none;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            z-index: 999999;
+        }
+        .break-overlay h1 {
+            font-size: 6vw;
+            color: var(--accent-color);
+            margin-bottom: 20px;
+            text-transform: uppercase;
+            text-shadow: 0 0 20px rgba(255, 222, 0, 0.5);
+        }
+        .break-overlay .timer-box {
+            font-size: 3vw;
+            color: #fff;
+            font-weight: 600;
+        }
+        .break-overlay .timer-box span { color: var(--wicket-color); font-size: 4vw; }
+
+        /* PROFESSIONAL SCOREBOARD STYLE */
         .scoreboard-bar {
             box-sizing: border-box;
             position: fixed;
@@ -82,11 +107,12 @@
             display: flex;
             align-items: center;
             justify-content: space-between;
-            padding: 0 25px;
-            z-index: 50; /* Scoreboard video ke upar */
+            padding: 0 20px;
+            z-index: 50; 
+            transition: transform 0.3s ease;
         }
 
-        /* --- FULLSCREEN ANIMATION OVERLAY --- */
+        /* FULLSCREEN ANIMATION OVERLAY */
         .animation-overlay {
             position: fixed;
             top: 0; left: 0; 
@@ -98,13 +124,12 @@
             background: radial-gradient(circle, rgba(0,0,0,0.8) 0%, rgba(0,0,0,0) 70%); 
             transition: opacity 0.2s ease;
         }
-
         .animation-overlay.active { opacity: 1; }
 
         #animationText {
             display: inline-block; 
             color: white;
-            font-size: 16vw; 
+            font-size: 14vw; 
             font-weight: 800;
             font-style: italic;
             text-transform: uppercase;
@@ -119,6 +144,15 @@
             100% { transform: scale(1.5) rotate(10deg); opacity: 0; filter: blur(10px); }
         }
 
+        @keyframes pop-noball {
+            0% { transform: scale(0); opacity: 0; }
+            15% { transform: scale(1.2); opacity: 1; }
+            25% { transform: scale(1); opacity: 1; text-shadow: 0 0 80px var(--noball-color); }
+            50% { transform: scale(1.1); opacity: 1; text-shadow: 0 0 20px var(--noball-color); }
+            80% { transform: scale(1); opacity: 1; }
+            100% { transform: scale(1.5); opacity: 0; filter: blur(10px); }
+        }
+
         .animation-overlay.animate-four #animationText {
             text-shadow: 0 0 30px var(--four-color), 0 0 60px var(--four-color), 0 0 100px #fff;
             animation: pop-in-out 3s cubic-bezier(0.175, 0.885, 0.32, 1.275) forwards;
@@ -131,36 +165,59 @@
             text-shadow: 0 0 30px var(--wicket-color), 0 0 60px var(--wicket-color), 0 0 100px #fff;
             animation: pop-in-out 3s cubic-bezier(0.175, 0.885, 0.32, 1.275) forwards;
         }
+        .animation-overlay.animate-noball #animationText {
+            color: var(--noball-color);
+            text-shadow: 0 0 30px var(--noball-color), 0 0 60px var(--noball-color), 0 0 100px #fff;
+            animation: pop-noball 3s cubic-bezier(0.175, 0.885, 0.32, 1.275) forwards;
+        }
 
         /* Layout Sizes */
-        .team-section, .player-section, .bowler-section { display: flex; align-items: center; gap: 20px; height: 100%; }
-        .team-logo { height: 50px; width: 50px; object-fit: contain; }
-        .team-names { font-size: 18px; line-height: 1.2; font-weight: 600; white-space: nowrap; }
-        .score-details { display: flex; align-items: center; gap: 15px; }
-        .score-box { background-color: rgba(0,0,0,0.6); padding: 4px 18px; font-size: 32px; font-weight: 700; border-radius: 6px; color: var(--accent-color); letter-spacing: 1px; }
-        .overs-box { font-size: 15px; color: var(--secondary-text); font-weight: 500; }
+        .team-section, .player-section, .bowler-section { display: flex; align-items: center; gap: 15px; height: 100%; }
+        .team-logo { height: 45px; width: 45px; object-fit: contain; }
+        .team-names { font-size: 16px; line-height: 1.2; font-weight: 600; white-space: nowrap; }
+        .score-details { display: flex; align-items: center; gap: 12px; }
+        .score-box { background-color: rgba(0,0,0,0.6); padding: 4px 14px; font-size: 28px; font-weight: 700; border-radius: 6px; color: var(--accent-color); letter-spacing: 1px; }
+        .overs-box { font-size: 13px; color: var(--secondary-text); font-weight: 500; }
         .separator { width: 1px; height: 60%; background-color: rgba(255, 255, 255, 0.2); }
-        .batsmen { display: flex; flex-direction: column; justify-content: center; gap: 4px; font-size: 16px; }
-        .batsman { display: flex; align-items: center; gap: 10px; }
-        .batsman .name { width: 140px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; font-weight: 500;}
-        .batsman .runs { font-weight: 700; width: 35px; text-align: right; font-size: 18px;}
-        .batsman .balls { color: var(--secondary-text); width: 40px; font-size: 14px;}
+        .batsmen { display: flex; flex-direction: column; justify-content: center; gap: 2px; font-size: 15px; }
+        .batsman { display: flex; align-items: center; gap: 8px; }
+        .batsman .name { width: 120px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; font-weight: 500;}
+        .batsman .runs { font-weight: 700; width: 30px; text-align: right; font-size: 16px;}
+        .batsman .balls { color: var(--secondary-text); width: 35px; font-size: 13px;}
         .batsman.striker .name { color: var(--accent-color); font-weight: 600;}
-        .bowler-info .name { font-size: 17px; font-weight: 500; margin-right: 15px; width: 120px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis;}
-        .ball-tracker { display: flex; align-items: center; gap: 8px; }
         
-        .ball { width: 30px; height: 30px; border-radius: 50%; display: flex; justify-content: center; align-items: center; font-size: 14px; font-weight: 600; background: rgba(255,255,255,0.1); border: 1px solid rgba(255, 255, 255, 0.3); }
+        .bowler-wrapper { display: flex; flex-direction: column; justify-content: center; gap: 3px; }
+        .bowler-info { display: flex; align-items: center;}
+        .bowler-info .name { font-size: 15px; font-weight: 500; margin-right: 15px; width: 110px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis;}
+        .prev-over { font-size: 10px; color: var(--secondary-text); letter-spacing: 0.5px; margin-bottom: 2px; font-weight: 600;}
+        
+        .ball-tracker { display: flex; align-items: center; gap: 6px; }
+        .ball { width: 26px; height: 26px; border-radius: 50%; display: flex; justify-content: center; align-items: center; font-size: 13px; font-weight: 600; background: rgba(255,255,255,0.1); border: 1px solid rgba(255, 255, 255, 0.3); }
         .ball-run { background: #ffffff; color: #000; border: none; }
         .ball-four { background: var(--four-color); color: #fff; border: none; }
         .ball-six { background: var(--six-color); color: #fff; border: none; }
         .ball-wicket { background: var(--wicket-color); color: #fff; border: none; }
-        .ball-extra { background: #ffaa00; color: #000; border: none; }
+        .ball-extra { background: var(--noball-color); color: #000; border: none; }
+
+        @media (max-width: 900px) {
+            .scoreboard-bar { transform: translateX(-50%) scale(0.85); transform-origin: bottom center; bottom: 10px; width: 100%;}
+        }
+        @media (max-width: 600px) {
+            .scoreboard-bar { transform: translateX(-50%) scale(0.65); transform-origin: bottom center; bottom: 5px; width: 100vw; padding: 0 10px; }
+        }
     </style>
 </head>
 <body>
 
+<audio id="sirenSound" src="siren.mp3" preload="auto"></audio>
+
 <div id="interactionOverlay" class="interaction-overlay">
     <span>🖱️ Click here to start Video & Sound</span>
+</div>
+
+<div id="breakOverlay" class="break-overlay">
+    <h1 id="breakTitle">OVER COMPLETE</h1>
+    <div class="timer-box">Resuming in <span id="breakTimer">30</span>s</div>
 </div>
 
 <div class="broadcast-container">
@@ -196,7 +253,7 @@
                     <span class="runs" id="strikerRuns">0</span>
                     <span class="balls">(<span id="strikerBalls">0</span>)</span>
                 </div>
-                <div class="batsman">
+                <div class="batsman" id="nonStrikerContainer">
                     <span class="name" id="nonStrikerName">Non-Striker</span>
                     <span class="runs" id="nonStrikerRuns">0</span>
                     <span class="balls">(<span id="nonStrikerBalls">0</span>)</span>
@@ -207,15 +264,17 @@
         <div class="separator"></div>
         
         <div class="bowler-section">
-            <div class="bowler-info">
-                <span class="name" id="bowlerName">Bowler</span>
+            <div class="bowler-wrapper">
+                <div class="prev-over" id="prevOverSummary" style="display:none;">Prev: </div>
+                <div class="bowler-info">
+                    <span class="name" id="bowlerName">Bowler</span>
+                </div>
             </div>
             <div class="ball-tracker" id="ballTracker"></div>
         </div>
     </div>
 </div>
 
-<!-- Firebase SDK -->
 <script src="https://www.gstatic.com/firebasejs/8.6.1/firebase-app.js"></script>
 <script src="https://www.gstatic.com/firebasejs/8.6.1/firebase-database.js"></script>
 
@@ -236,58 +295,72 @@
 
     let processedEventId = null;
     let isUserInteracted = false;
+    let animationTimeout = null;
+    let breakInterval = null;
 
-    // --- SOUND INTERACTION LOGIC ---
     const interactionOverlay = document.getElementById('interactionOverlay');
     interactionOverlay.addEventListener('click', () => {
         isUserInteracted = true;
         interactionOverlay.style.opacity = '0';
         setTimeout(() => { interactionOverlay.style.display = 'none'; }, 500);
 
-        // Agar YouTube video already loaded hai, toh mute=1 ko mute=0 me badal ke reload karo taaki sound aa jaye
         const ytPlayer = document.getElementById('youtubePlayer');
         if (ytPlayer.src && ytPlayer.src.includes('mute=1')) {
             ytPlayer.src = ytPlayer.src.replace('mute=1', 'mute=0');
         }
     });
 
+    const safeSetText = (id, text) => {
+        const el = document.getElementById(id);
+        if (el && el.textContent !== String(text)) el.textContent = String(text);
+    };
+
     dbRef.on('value', (snapshot) => {
         const data = snapshot.val();
         if (!data) return;
 
-        document.getElementById('teamAName').textContent = data.teams?.teamA?.name || 'TEAM A';
+        safeSetText('teamAName', data.teams?.teamA?.name || 'TEAM A');
         document.getElementById('teamALogo').src = data.teams?.teamA?.logo || 'https://via.placeholder.com/50x50/ffffff/000000?text=A';
-        document.getElementById('teamBName').textContent = `v ${data.teams?.teamB?.name || 'TEAM B'}`;
+        safeSetText('teamBName', `v ${data.teams?.teamB?.name || 'TEAM B'}`);
         
-        document.getElementById('runs').textContent = data.score?.runs || 0;
-        document.getElementById('wickets').textContent = data.score?.wickets || 0;
-        document.getElementById('overs').textContent = `${data.score?.overs || 0}.${data.score?.balls || 0}`;
+        safeSetText('runs', data.score?.runs || 0);
+        safeSetText('wickets', data.score?.wickets || 0);
+        safeSetText('overs', `${data.score?.overs || 0}.${data.score?.balls || 0}`);
         
-        document.getElementById('strikerName').textContent = (data.players?.striker?.name || 'Striker') + '*';
-        document.getElementById('strikerRuns').textContent = data.players?.striker?.runs || 0;
-        document.getElementById('strikerBalls').textContent = data.players?.striker?.balls || 0;
+        safeSetText('strikerName', (data.players?.striker?.name || 'Striker') + '*');
+        safeSetText('strikerRuns', data.players?.striker?.runs || 0);
+        safeSetText('strikerBalls', data.players?.striker?.balls || 0);
         
-        document.getElementById('nonStrikerName').textContent = data.players?.nonStriker?.name || 'Non-Striker';
-        document.getElementById('nonStrikerRuns').textContent = data.players?.nonStriker?.runs || 0;
-        document.getElementById('nonStrikerBalls').textContent = data.players?.nonStriker?.balls || 0;
+        const nsEl = document.getElementById('nonStrikerContainer');
+        if (!data.players?.nonStriker?.name || data.players.nonStriker.name.trim() === '') {
+            nsEl.style.display = 'none';
+        } else {
+            nsEl.style.display = 'flex';
+            safeSetText('nonStrikerName', data.players.nonStriker.name);
+            safeSetText('nonStrikerRuns', data.players.nonStriker.runs || 0);
+            safeSetText('nonStrikerBalls', data.players.nonStriker.balls || 0);
+        }
         
-        document.getElementById('bowlerName').textContent = data.players?.bowler?.name || 'Bowler';
+        safeSetText('bowlerName', data.players?.bowler?.name || 'Bowler');
 
-        // --- YOUTUBE VIDEO UPDATE FIX ---
+        // YOUTUBE VIDEO UPDATE
         if (data.youtubeURL) {
             const ytPlayer = document.getElementById('youtubePlayer');
             let finalURL = data.youtubeURL;
-            
-            // Agar user ne screen par click kar diya hai toh "mute=1" ko hata kar "mute=0" kar do sound ke liye
-            if (isUserInteracted) {
-                finalURL = finalURL.replace('mute=1', 'mute=0');
-            }
+            if (isUserInteracted) finalURL = finalURL.replace('mute=1', 'mute=0');
+            if (ytPlayer.src !== finalURL) ytPlayer.src = finalURL;
+        }
 
-            if (ytPlayer.src !== finalURL) {
-                ytPlayer.src = finalURL;
-            }
+        // PREVIOUS OVER SUMMARY
+        const prevSummary = document.getElementById('prevOverSummary');
+        if (data.previousOverHistory && data.previousOverHistory.length > 0) {
+            prevSummary.textContent = 'PREV OVER: ' + data.previousOverHistory.join(' ');
+            prevSummary.style.display = 'block';
+        } else {
+            prevSummary.style.display = 'none';
         }
         
+        // BALL TRACKER
         const ballTracker = document.getElementById('ballTracker');
         ballTracker.innerHTML = '';
         if(data.lastBalls && Array.isArray(data.lastBalls)) {
@@ -307,14 +380,38 @@
             });
         }
 
+        // BREAK / TIMERS LOGIC
+        const overlay = document.getElementById('breakOverlay');
+        const title = document.getElementById('breakTitle');
+        const timer = document.getElementById('breakTimer');
+        const yt = document.getElementById('youtubePlayer');
+        const status = data.matchStatus || 'LIVE';
+
+        if (status === 'LIVE' || !data.breakEndTime) {
+            overlay.style.display = 'none';
+            yt.style.opacity = '1';
+            clearInterval(breakInterval);
+        } else {
+            overlay.style.display = 'flex';
+            yt.style.opacity = '0';
+            title.textContent = status === 'INNINGS_BREAK' ? 'INNINGS END' : 'OVER COMPLETE';
+            
+            clearInterval(breakInterval);
+            breakInterval = setInterval(() => {
+                let remaining = Math.max(0, Math.floor((data.breakEndTime - Date.now()) / 1000));
+                timer.textContent = remaining;
+                if (remaining <= 0) clearInterval(breakInterval);
+            }, 200);
+        }
+
+        // ANIMATIONS
         if (data.lastEvent && data.lastEvent !== processedEventId) {
             let isFirstLoad = (processedEventId === null);
             processedEventId = data.lastEvent;
 
             if (!isFirstLoad) {
                 const eventType = data.lastEvent.split('_')[0]; 
-                
-                const overlay = document.getElementById('animationOverlay');
+                const animOverlay = document.getElementById('animationOverlay');
                 const overlayText = document.getElementById('animationText');
                 
                 let applyClass = '';
@@ -323,22 +420,24 @@
                 if (eventType === 'FOUR') { applyClass = 'animate-four'; showText = 'FOUR!'; }
                 else if (eventType === 'SIX') { applyClass = 'animate-six'; showText = 'SIX!'; }
                 else if (eventType === 'WICKET') { applyClass = 'animate-wicket'; showText = 'WICKET!'; }
+                else if (eventType === 'NOBALL') { 
+                    applyClass = 'animate-noball'; showText = 'NO BALL!'; 
+                    const siren = document.getElementById('sirenSound');
+                    if(siren && isUserInteracted) siren.play().catch(e => console.log('Audio error:', e));
+                }
 
                 if (applyClass) {
                     overlayText.textContent = showText;
+                    if(animationTimeout) clearTimeout(animationTimeout);
                     
-                    overlay.className = 'animation-overlay';
-                    overlayText.style.animation = 'none';
+                    animOverlay.className = 'animation-overlay'; // Reset
                     
-                    void overlayText.offsetWidth; 
-                    
-                    overlay.classList.add('active');
-                    overlay.classList.add(applyClass);
-                    overlayText.style.animation = '';
-
                     setTimeout(() => {
-                        overlay.className = 'animation-overlay';
-                    }, 3000);
+                        animOverlay.classList.add('active', applyClass);
+                        animationTimeout = setTimeout(() => {
+                            animOverlay.className = 'animation-overlay';
+                        }, 3000);
+                    }, 50); // Slight delay to ensure CSS re-trigger
                 }
             }
         }
