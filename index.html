@@ -40,6 +40,29 @@
             z-index: 1; /* Player background mein rahega */
         }
 
+        /* ==========================================
+           NEW: SOUND INTERACTION OVERLAY FIX
+           ========================================== */
+        .interaction-overlay {
+            position: fixed;
+            top: 0; left: 0; width: 100vw; height: 100vh;
+            background: rgba(0,0,0,0.85);
+            color: #fff;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            z-index: 9999999; /* Sabse upar rahega jab tak click na ho */
+            font-size: 26px;
+            font-weight: 700;
+            cursor: pointer;
+            backdrop-filter: blur(10px);
+            transition: opacity 0.5s ease;
+            text-transform: uppercase;
+            letter-spacing: 2px;
+            text-align: center;
+        }
+        .interaction-overlay:hover { background: rgba(0,0,0,0.95); color: var(--accent-color); }
+
         /* --- PROFESSIONAL SCOREBOARD STYLE --- */
         .scoreboard-bar {
             box-sizing: border-box;
@@ -63,26 +86,21 @@
             z-index: 50; /* Scoreboard video ke upar */
         }
 
-        /* ==========================================
-           FIXED: FULLSCREEN ANIMATION OVERLAY 
-           ========================================== */
+        /* --- FULLSCREEN ANIMATION OVERLAY --- */
         .animation-overlay {
             position: fixed;
             top: 0; left: 0; 
             width: 100vw; height: 100vh;
             display: flex; justify-content: center; align-items: center;
-            z-index: 99999; /* HIGHEST Z-INDEX - Sabse aage rahega */
+            z-index: 99999; 
             pointer-events: none; 
             opacity: 0;
-            background: radial-gradient(circle, rgba(0,0,0,0.8) 0%, rgba(0,0,0,0) 70%); /* Cinematic dark focus background */
+            background: radial-gradient(circle, rgba(0,0,0,0.8) 0%, rgba(0,0,0,0) 70%); 
             transition: opacity 0.2s ease;
         }
 
-        .animation-overlay.active {
-            opacity: 1;
-        }
+        .animation-overlay.active { opacity: 1; }
 
-        /* SPAN ka DISPLAY INLINE-BLOCK hona zaruri hai Transform ke liye */
         #animationText {
             display: inline-block; 
             color: white;
@@ -91,10 +109,9 @@
             font-style: italic;
             text-transform: uppercase;
             opacity: 0;
-            margin-bottom: 50px; /* Thoda center se upar taaki scoreboard na chhupe */
+            margin-bottom: 50px; 
         }
 
-        /* 3D Cinematic Animation Keyframes */
         @keyframes pop-in-out {
             0% { transform: scale(0) rotate(-10deg); opacity: 0; }
             15% { transform: scale(1.1) rotate(0deg); opacity: 1; }
@@ -142,10 +159,13 @@
 </head>
 <body>
 
-<div class="broadcast-container">
-    <iframe id="youtubePlayer" allow="autoplay; encrypted-media" frameborder="0"></iframe>
+<div id="interactionOverlay" class="interaction-overlay">
+    <span>🖱️ Click here to start Video & Sound</span>
+</div>
 
-    <!-- OVERLAY SABSE UPAR RAHEGA -->
+<div class="broadcast-container">
+    <iframe id="youtubePlayer" allow="autoplay; fullscreen; encrypted-media" frameborder="0"></iframe>
+
     <div class="animation-overlay" id="animationOverlay">
         <span id="animationText"></span>
     </div>
@@ -201,7 +221,6 @@
 
 <script>
     const firebaseConfig = {
-      // APNI FIREBASE DETAILS DALEIN
       apiKey: "AIzaSyCUsKRK-HQHQdtNHz2uudAvEMCibG-Ehdc",
       authDomain: "appforge-studio-n70sk.firebaseapp.com",
       databaseURL: "https://appforge-studio-n70sk-default-rtdb.firebaseio.com",
@@ -216,12 +235,26 @@
     const dbRef = db.ref('match');
 
     let processedEventId = null;
+    let isUserInteracted = false;
+
+    // --- SOUND INTERACTION LOGIC ---
+    const interactionOverlay = document.getElementById('interactionOverlay');
+    interactionOverlay.addEventListener('click', () => {
+        isUserInteracted = true;
+        interactionOverlay.style.opacity = '0';
+        setTimeout(() => { interactionOverlay.style.display = 'none'; }, 500);
+
+        // Agar YouTube video already loaded hai, toh mute=1 ko mute=0 me badal ke reload karo taaki sound aa jaye
+        const ytPlayer = document.getElementById('youtubePlayer');
+        if (ytPlayer.src && ytPlayer.src.includes('mute=1')) {
+            ytPlayer.src = ytPlayer.src.replace('mute=1', 'mute=0');
+        }
+    });
 
     dbRef.on('value', (snapshot) => {
         const data = snapshot.val();
         if (!data) return;
 
-        // Updating Text/Scoreboard (Same as before)
         document.getElementById('teamAName').textContent = data.teams?.teamA?.name || 'TEAM A';
         document.getElementById('teamALogo').src = data.teams?.teamA?.logo || 'https://via.placeholder.com/50x50/ffffff/000000?text=A';
         document.getElementById('teamBName').textContent = `v ${data.teams?.teamB?.name || 'TEAM B'}`;
@@ -240,15 +273,21 @@
         
         document.getElementById('bowlerName').textContent = data.players?.bowler?.name || 'Bowler';
 
-        // Updating YouTube Video if changed
+        // --- YOUTUBE VIDEO UPDATE FIX ---
         if (data.youtubeURL) {
             const ytPlayer = document.getElementById('youtubePlayer');
-            if (ytPlayer.src !== data.youtubeURL) {
-                ytPlayer.src = data.youtubeURL;
+            let finalURL = data.youtubeURL;
+            
+            // Agar user ne screen par click kar diya hai toh "mute=1" ko hata kar "mute=0" kar do sound ke liye
+            if (isUserInteracted) {
+                finalURL = finalURL.replace('mute=1', 'mute=0');
+            }
+
+            if (ytPlayer.src !== finalURL) {
+                ytPlayer.src = finalURL;
             }
         }
         
-        // Ball Tracker setup
         const ballTracker = document.getElementById('ballTracker');
         ballTracker.innerHTML = '';
         if(data.lastBalls && Array.isArray(data.lastBalls)) {
@@ -268,12 +307,7 @@
             });
         }
 
-        // ==========================================
-        // PERFECT FULLSCREEN ANIMATION TRIGGER LOGIC
-        // ==========================================
         if (data.lastEvent && data.lastEvent !== processedEventId) {
-            
-            // Check ki page refresh pe achanak se purana animation trigger na ho
             let isFirstLoad = (processedEventId === null);
             processedEventId = data.lastEvent;
 
@@ -293,21 +327,17 @@
                 if (applyClass) {
                     overlayText.textContent = showText;
                     
-                    // Pehle purani classes hata kar animation clear karo
                     overlay.className = 'animation-overlay';
                     overlayText.style.animation = 'none';
                     
-                    // Trick to force browser to re-render (Animation restart karne ke liye)
                     void overlayText.offsetWidth; 
                     
-                    // Ab nayi class do aur animation chalao
                     overlay.classList.add('active');
                     overlay.classList.add(applyClass);
                     overlayText.style.animation = '';
 
-                    // 3 seconds baad overlay chupao (Yeh part miss ho gaya tha)
                     setTimeout(() => {
-                        overlay.className = 'animation-overlay'; // Screen clear kar dega
+                        overlay.className = 'animation-overlay';
                     }, 3000);
                 }
             }
