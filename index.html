@@ -8,12 +8,16 @@
         @import url('https://fonts.googleapis.com/css2?family=Teko:wght@500;700&family=Roboto+Condensed:wght@400;700&display=swap');
 
         :root {
-            --bar-height: 85px; /* Increased height for bigger text */
+            /* --- INCREASED SIZES FOR A BOLDER LOOK --- */
+            --bar-height: 110px; /* Increased height for a bigger bar */
             --primary-text: #ffffff;
             --secondary-text: #cccccc;
             --accent-color: #ffde00;
             --dark-purple: #3a033d;
             --pink-purple: #9b0b68;
+            --four-color: #00aaff;
+            --six-color: #ff00cc;
+            --wicket-color: #ff4444;
         }
 
         body {
@@ -35,42 +39,71 @@
             border: none;
         }
 
-        /* --- NEW PROFESSIONAL SCOREBOARD STYLE (WITH LARGER TEXT) --- */
+        /* --- NEW PROFESSIONAL SCOREBOARD STYLE (WITH LARGER TEXT & ANIMATIONS) --- */
         .scoreboard-bar {
             box-sizing: border-box;
             position: fixed;
-            bottom: 20px;
+            bottom: 30px; /* Increased bottom spacing */
             left: 50%;
             transform: translateX(-50%);
-            width: 95%;
-            max-width: 1200px;
+            width: 96%;   /* Slightly increased width */
+            max-width: 1400px; /* Increased max-width */
             height: var(--bar-height); /* Using updated height */
             background: linear-gradient(90deg, var(--dark-purple) 0%, var(--pink-purple) 100%);
-            border: 1px solid rgba(255, 255, 255, 0.4);
-            border-radius: 12px;
+            border: 2px solid rgba(255, 255, 255, 0.4); /* Thicker border */
+            border-radius: 15px; /* Smoother corners */
             color: var(--primary-text);
             display: flex;
             align-items: center;
             justify-content: space-between;
-            padding: 0 25px; /* Increased padding */
+            padding: 0 30px; /* Increased padding */
             font-weight: 700;
-            text-shadow: 1px 1px 3px rgba(0,0,0,0.5);
+            text-shadow: 2px 2px 4px rgba(0,0,0,0.6); /* Stronger shadow */
+            transition: box-shadow 0.3s ease, border-color 0.3s ease; /* Smooth transition for animations */
         }
+
+        /* --- ANIMATION STYLES --- */
+        .scoreboard-bar.animate-four {
+            animation: glow-four 1.5s ease-out;
+        }
+        .scoreboard-bar.animate-six {
+            animation: glow-six 1.5s ease-out;
+        }
+        .scoreboard-bar.animate-wicket {
+            animation: glow-wicket 1.5s ease-out;
+        }
+
+        @keyframes glow-four {
+            0% { box-shadow: 0 0 0px var(--four-color); border-color: rgba(255, 255, 255, 0.4); }
+            50% { box-shadow: 0 0 35px var(--four-color); border-color: var(--four-color); }
+            100% { box-shadow: 0 0 0px var(--four-color); border-color: rgba(255, 255, 255, 0.4); }
+        }
+        @keyframes glow-six {
+            0% { box-shadow: 0 0 0px var(--six-color); border-color: rgba(255, 255, 255, 0.4); }
+            50% { box-shadow: 0 0 35px var(--six-color); border-color: var(--six-color); }
+            100% { box-shadow: 0 0 0px var(--six-color); border-color: rgba(255, 255, 255, 0.4); }
+        }
+        @keyframes glow-wicket {
+            0% { box-shadow: 0 0 0px var(--wicket-color); border-color: rgba(255, 255, 255, 0.4); }
+            50% { box-shadow: 0 0 35px var(--wicket-color); border-color: var(--wicket-color); }
+            100% { box-shadow: 0 0 0px var(--wicket-color); border-color: rgba(255, 255, 255, 0.4); }
+        }
+
 
         .team-section, .player-section, .bowler-section {
             display: flex;
             align-items: center;
-            gap: 20px; /* Increased gap */
+            gap: 25px; /* Increased gap */
             height: 100%;
         }
 
         .team-logo {
-            height: 55px; /* Increased logo size */
+            height: 70px; /* Increased logo size */
         }
 
         .team-names {
             font-family: 'Teko', sans-serif;
-            font-size: 3.6vh; /* Increased font size */
+            font-size: 4.5vh; /* Increased font size */
             line-height: 1.1;
             font-weight: 700;
         }
@@ -78,26 +111,28 @@
         .score-details {
             display: flex;
             align-items: center;
-            gap: 15px; /* Increased gap */
+            gap: 20px; /* Increased gap */
         }
 
         .score-box {
-            background-color: #d42a2a;
-            padding: 5px 20px; /* Increased padding */
+            background-color: rgba(0,0,0,0.3); /* Slightly transparent background */
+            padding: 5px 25px; /* Increased padding */
             font-family: 'Teko', sans-serif;
-            font-size: 4.5vh; /* Increased font size */
-            border-radius: 5px;
+            font-size: 5.5vh; /* Increased font size */
+            border-radius: 8px; /* Smoother corners */
+            border: 1px solid rgba(255,255,255,0.3);
             color: white;
         }
 
         .overs-box {
-            font-size: 2.6vh; /* Increased font size */
+            font-size: 3vh; /* Increased font size */
             color: var(--secondary-text);
+            font-weight: 500;
         }
 
         .separator {
             width: 2px;
-            height: 70%; /* Increased height */
+            height: 75%; /* Increased height */
             background-color: rgba(255, 255, 255, 0.3);
         }
 
@@ -105,18 +140,18 @@
             display: flex;
             flex-direction: column;
             justify-content: center;
-            gap: 6px; /* Increased gap */
-            font-size: 2.5vh; /* Increased font size */
+            gap: 8px; /* Increased gap */
+            font-size: 2.8vh; /* Increased font size */
         }
         
         .batsman {
             display: flex;
             align-items: center;
-            gap: 10px; /* Increased gap */
+            gap: 15px; /* Increased gap */
         }
 
         .batsman .name {
-            width: 140px; /* Increased width for name */
+            width: 180px; /* Increased width for name */
             white-space: nowrap;
             overflow: hidden;
             text-overflow: ellipsis;
@@ -124,13 +159,13 @@
         
         .batsman .runs {
             font-weight: 700;
-            width: 35px; /* Increased width */
+            width: 45px; /* Increased width */
             text-align: right;
         }
         
         .batsman .balls {
             color: var(--secondary-text);
-            width: 40px; /* Increased width */
+            width: 50px; /* Increased width */
         }
 
         .batsman.striker .name {
@@ -138,34 +173,34 @@
         }
         
         .bowler-info .name {
-            font-size: 2.5vh; /* Increased font size */
-            margin-right: 20px; /* Increased margin */
+            font-size: 2.8vh; /* Increased font size */
+            margin-right: 25px; /* Increased margin */
         }
         
         .ball-tracker {
             display: flex;
             align-items: center;
-            gap: 10px; /* Increased gap */
+            gap: 12px; /* Increased gap */
         }
 
         .ball {
-            width: 3.8vh; /* Increased ball size */
-            height: 3.8vh; /* Increased ball size */
+            width: 4.2vh; /* Increased ball size */
+            height: 4.2vh; /* Increased ball size */
             border-radius: 50%;
             display: flex;
             justify-content: center;
             align-items: center;
-            font-size: 2.0vh; /* Increased font size inside ball */
+            font-size: 2.2vh; /* Increased font size inside ball */
             font-weight: bold;
             background: rgba(0,0,0,0.2);
             border: 1px solid rgba(255, 255, 255, 0.5);
         }
 
         .ball-run { background: rgba(255,255,255,0.8); color: #000; border: none; }
-        .ball-four { background: #00aaff; color: #fff; border:none; }
-        .ball-six { background: #ff00cc; color: #fff; border:none; }
-        .ball-wicket { background: #ff4444; color: #fff; border:none; }
-        .ball-extra { background: #ffaa00; color: #000; font-size: 1.8vh; border:none;} /* Increased font size */
+        .ball-four { background: var(--four-color); color: #fff; border:none; }
+        .ball-six { background: var(--six-color); color: #fff; border:none; }
+        .ball-wicket { background: var(--wicket-color); color: #fff; border:none; }
+        .ball-extra { background: #ffaa00; color: #000; font-size: 2vh; border:none;} /* Increased font size */
     </style>
 </head>
 <body>
@@ -174,11 +209,11 @@
     <iframe id="youtubePlayer" allow="autoplay; encrypted-media" frameborder="0"></iframe>
 
     <!-- NEW SCOREBOARD HTML STRUCTURE -->
-    <div class="scoreboard-bar">
+    <div class="scoreboard-bar" id="scoreboardBar">
         
         <!-- Left Section: Teams & Score -->
         <div class="team-section">
-            <img id="teamALogo" src="https://via.placeholder.com/50x50/ffffff/000000?text=A" alt="Team A" class="team-logo">
+            <img id="teamALogo" src="https://via.placeholder.com/70x70/ffffff/000000?text=A" alt="Team A" class="team-logo">
             <div class="team-names">
                 <span id="teamAName">TEAM A</span><br>
                 <span id="teamBName" style="color: var(--secondary-text); font-size: 0.8em;">v TEAM B</span>
@@ -247,6 +282,9 @@
     const db = firebase.database();
     const dbRef = db.ref('match');
 
+    // --- NEW: Track last ball to prevent re-animating on every data change ---
+    let lastBallEvent = null;
+
     dbRef.on('value', (snapshot) => {
         const data = snapshot.val();
         if (!data) return;
@@ -254,9 +292,9 @@
         // --- OLD LOGIC (UNCHANGED) ---
         // Batting Team
         document.getElementById('teamAName').textContent = data.teams?.teamA?.name || 'TEAM A';
-        document.getElementById('teamALogo').src = data.teams?.teamA?.logo || 'https://via.placeholder.com/50x50/ffffff/000000?text=A';
+        document.getElementById('teamALogo').src = data.teams?.teamA?.logo || 'https://via.placeholder.com/70x70/ffffff/000000?text=A';
         
-        // Bowling Team (Added this one line to show bowling team name)
+        // Bowling Team
         const teamBElement = document.getElementById('teamBName');
         if (data.teams?.teamB?.name) {
             teamBElement.textContent = `v ${data.teams.teamB.name}`;
@@ -274,15 +312,16 @@
         document.getElementById('strikerRuns').textContent = data.players?.striker?.runs || 0;
         document.getElementById('strikerBalls').textContent = data.players?.striker?.balls || 0;
         document.getElementById('nonStrikerName').textContent = data.players?.nonStriker?.name || 'Non-Striker';
-        document.getElementById('nonStrikerRuns').textContent = data.players?.nonStriker?.runs || 0; // Added non-striker runs
-        document.getElementById('nonStrikerBalls').textContent = data.players?.nonStriker?.balls || 0; // Added non-striker balls
+        document.getElementById('nonStrikerRuns').textContent = data.players?.nonStriker?.runs || 0;
+        document.getElementById('nonStrikerBalls').textContent = data.players?.nonStriker?.balls || 0;
         document.getElementById('bowlerName').textContent = data.players?.bowler?.name || 'Bowler';
         
         // Ball Tracker
         const ballTracker = document.getElementById('ballTracker');
         ballTracker.innerHTML = '';
         if(data.lastBalls && Array.isArray(data.lastBalls)) {
-            data.lastBalls.slice(-6).forEach(ball => { // Use slice(-6) to always show last 6 balls of the over
+            const currentOverBalls = data.lastBalls.slice(-6); // Always show last 6 balls
+            currentOverBalls.forEach(ball => {
                 const ballEl = document.createElement('div');
                 ballEl.textContent = ball;
                 ballEl.classList.add('ball');
@@ -295,11 +334,33 @@
 
                 ballTracker.appendChild(ballEl);
             });
+
+            // --- NEW ANIMATION LOGIC ---
+            const latestBall = currentOverBalls[currentOverBalls.length - 1];
+            const eventId = `over_${data.score?.overs}_ball_${data.score?.balls}`; // Unique ID for each ball
+
+            if (latestBall && lastBallEvent !== eventId) {
+                lastBallEvent = eventId; // Update the last event tracker
+                const scoreboardBar = document.getElementById('scoreboardBar');
+                
+                // Remove any existing animation classes first
+                scoreboardBar.classList.remove('animate-four', 'animate-six', 'animate-wicket');
+
+                // Use a short timeout to allow the browser to remove the class before adding it again
+                setTimeout(() => {
+                    if (latestBall === '4') {
+                        scoreboardBar.classList.add('animate-four');
+                    } else if (latestBall === '6') {
+                        scoreboardBar.classList.add('animate-six');
+                    } else if (latestBall === 'W') {
+                        scoreboardBar.classList.add('animate-wicket');
+                    }
+                }, 10);
+            }
         }
         
         // --- YOUTUBE VIDEO AND SOUND FIX ---
         const youtubePlayer = document.getElementById('youtubePlayer');
-        // Get URL from Firebase and replace mute=1 with mute=0 to enable sound
         const newUrlWithSound = data.youtubeURL ? data.youtubeURL.replace('mute=1', 'mute=0') : '';
         
         if (newUrlWithSound && youtubePlayer.src !== newUrlWithSound) {
