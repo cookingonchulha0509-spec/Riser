@@ -6,14 +6,14 @@
     <title>Live Cricket Scoreboard - Professional</title>
     <style>
         /* Using Poppins for a clean, modern, professional look */
-        @import url('https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600;700&display=swap');
+        @import url('https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600;700;800&display=swap');
 
         :root {
-            --bar-height: 85px; /* Compact height */
+            --bar-height: 85px; 
             --primary-text: #ffffff;
             --secondary-text: #a0aec0;
-            --accent-color: #ffde00; /* Professional Gold/Yellow */
-            --bg-color: rgba(15, 23, 42, 0.9); /* Modern Dark Slate with transparency */
+            --accent-color: #ffde00; 
+            --bg-color: rgba(15, 23, 42, 0.9); 
             --four-color: #00aaff;
             --six-color: #ff00cc;
             --wicket-color: #ff4444;
@@ -33,9 +33,11 @@
         }
 
         #youtubePlayer {
-            width: 100%;
-            height: 100%;
+            position: absolute;
+            top: 0; left: 0;
+            width: 100%; height: 100%;
             border: none;
+            z-index: 1; /* Player background mein rahega */
         }
 
         /* --- PROFESSIONAL SCOREBOARD STYLE --- */
@@ -49,89 +51,88 @@
             max-width: 1200px;
             height: var(--bar-height);
             background: var(--bg-color);
-            backdrop-filter: blur(12px); /* Glassmorphism effect */
+            backdrop-filter: blur(12px); 
             border: 1px solid rgba(255, 255, 255, 0.15);
             border-radius: 12px;
-            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.5);
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.6);
             color: var(--primary-text);
             display: flex;
             align-items: center;
             justify-content: space-between;
             padding: 0 25px;
+            z-index: 50; /* Scoreboard video ke upar */
         }
 
-        /* Fullscreen Animation Overlay */
+        /* ==========================================
+           FIXED: FULLSCREEN ANIMATION OVERLAY 
+           ========================================== */
         .animation-overlay {
             position: fixed;
-            top: 0; left: 0; width: 100%; height: 100%;
+            top: 0; left: 0; 
+            width: 100vw; height: 100vh;
             display: flex; justify-content: center; align-items: center;
-            color: white;
-            font-size: 15vw; /* Scales better horizontally */
-            font-weight: 700;
-            font-style: italic;
-            pointer-events: none;
+            z-index: 99999; /* HIGHEST Z-INDEX - Sabse aage rahega */
+            pointer-events: none; 
             opacity: 0;
-            z-index: 100;
+            background: radial-gradient(circle, rgba(0,0,0,0.8) 0%, rgba(0,0,0,0) 70%); /* Cinematic dark focus background */
+            transition: opacity 0.2s ease;
+        }
+
+        .animation-overlay.active {
+            opacity: 1;
+        }
+
+        /* SPAN ka DISPLAY INLINE-BLOCK hona zaruri hai Transform ke liye */
+        #animationText {
+            display: inline-block; 
+            color: white;
+            font-size: 16vw; 
+            font-weight: 800;
+            font-style: italic;
             text-transform: uppercase;
+            opacity: 0;
+            margin-bottom: 50px; /* Thoda center se upar taaki scoreboard na chhupe */
         }
 
-        .animation-overlay.animate-four span {
-            text-shadow: 0 0 20px var(--four-color), 0 0 40px var(--four-color);
-            animation: event-animation 2.5s cubic-bezier(0.175, 0.885, 0.32, 1.275) forwards;
-        }
-        .animation-overlay.animate-six span {
-            text-shadow: 0 0 20px var(--six-color), 0 0 40px var(--six-color);
-            animation: event-animation 2.5s cubic-bezier(0.175, 0.885, 0.32, 1.275) forwards;
-        }
-        .animation-overlay.animate-wicket span {
-            text-shadow: 0 0 20px var(--wicket-color), 0 0 40px var(--wicket-color);
-            animation: event-animation 2.5s cubic-bezier(0.175, 0.885, 0.32, 1.275) forwards;
+        /* 3D Cinematic Animation Keyframes */
+        @keyframes pop-in-out {
+            0% { transform: scale(0) rotate(-10deg); opacity: 0; }
+            15% { transform: scale(1.1) rotate(0deg); opacity: 1; }
+            80% { transform: scale(1) rotate(0deg); opacity: 1; }
+            100% { transform: scale(1.5) rotate(10deg); opacity: 0; filter: blur(10px); }
         }
 
-        @keyframes event-animation {
-            0% { transform: scale(0.2); opacity: 0; }
-            20% { transform: scale(1.1); opacity: 1; }
-            80% { transform: scale(1); opacity: 1; }
-            100% { transform: scale(1.5); opacity: 0; }
+        .animation-overlay.animate-four #animationText {
+            text-shadow: 0 0 30px var(--four-color), 0 0 60px var(--four-color), 0 0 100px #fff;
+            animation: pop-in-out 3s cubic-bezier(0.175, 0.885, 0.32, 1.275) forwards;
+        }
+        .animation-overlay.animate-six #animationText {
+            text-shadow: 0 0 30px var(--six-color), 0 0 60px var(--six-color), 0 0 100px #fff;
+            animation: pop-in-out 3s cubic-bezier(0.175, 0.885, 0.32, 1.275) forwards;
+        }
+        .animation-overlay.animate-wicket #animationText {
+            text-shadow: 0 0 30px var(--wicket-color), 0 0 60px var(--wicket-color), 0 0 100px #fff;
+            animation: pop-in-out 3s cubic-bezier(0.175, 0.885, 0.32, 1.275) forwards;
         }
 
-        /* Typography & Layout Sizes fixed */
+        /* Layout Sizes */
         .team-section, .player-section, .bowler-section { display: flex; align-items: center; gap: 20px; height: 100%; }
         .team-logo { height: 50px; width: 50px; object-fit: contain; }
         .team-names { font-size: 18px; line-height: 1.2; font-weight: 600; white-space: nowrap; }
-        
         .score-details { display: flex; align-items: center; gap: 15px; }
-        .score-box { 
-            background-color: rgba(0,0,0,0.6); 
-            padding: 4px 18px; 
-            font-size: 32px; 
-            font-weight: 700;
-            border-radius: 6px; 
-            color: var(--accent-color); 
-            letter-spacing: 1px;
-        }
+        .score-box { background-color: rgba(0,0,0,0.6); padding: 4px 18px; font-size: 32px; font-weight: 700; border-radius: 6px; color: var(--accent-color); letter-spacing: 1px; }
         .overs-box { font-size: 15px; color: var(--secondary-text); font-weight: 500; }
-        
         .separator { width: 1px; height: 60%; background-color: rgba(255, 255, 255, 0.2); }
-        
         .batsmen { display: flex; flex-direction: column; justify-content: center; gap: 4px; font-size: 16px; }
         .batsman { display: flex; align-items: center; gap: 10px; }
         .batsman .name { width: 140px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; font-weight: 500;}
         .batsman .runs { font-weight: 700; width: 35px; text-align: right; font-size: 18px;}
         .batsman .balls { color: var(--secondary-text); width: 40px; font-size: 14px;}
         .batsman.striker .name { color: var(--accent-color); font-weight: 600;}
-        
         .bowler-info .name { font-size: 17px; font-weight: 500; margin-right: 15px; width: 120px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis;}
         .ball-tracker { display: flex; align-items: center; gap: 8px; }
         
-        .ball { 
-            width: 30px; height: 30px; 
-            border-radius: 50%; 
-            display: flex; justify-content: center; align-items: center; 
-            font-size: 14px; font-weight: 600; 
-            background: rgba(255,255,255,0.1); 
-            border: 1px solid rgba(255, 255, 255, 0.3); 
-        }
+        .ball { width: 30px; height: 30px; border-radius: 50%; display: flex; justify-content: center; align-items: center; font-size: 14px; font-weight: 600; background: rgba(255,255,255,0.1); border: 1px solid rgba(255, 255, 255, 0.3); }
         .ball-run { background: #ffffff; color: #000; border: none; }
         .ball-four { background: var(--four-color); color: #fff; border: none; }
         .ball-six { background: var(--six-color); color: #fff; border: none; }
@@ -144,6 +145,7 @@
 <div class="broadcast-container">
     <iframe id="youtubePlayer" allow="autoplay; encrypted-media" frameborder="0"></iframe>
 
+    <!-- OVERLAY SABSE UPAR RAHEGA -->
     <div class="animation-overlay" id="animationOverlay">
         <span id="animationText"></span>
     </div>
@@ -186,7 +188,7 @@
         
         <div class="bowler-section">
             <div class="bowler-info">
-                <span class="name" id="bowlerName">Bowler Name</span>
+                <span class="name" id="bowlerName">Bowler</span>
             </div>
             <div class="ball-tracker" id="ballTracker"></div>
         </div>
@@ -199,7 +201,7 @@
 
 <script>
     const firebaseConfig = {
-      // APNI FIREBASE DETAILS YAHA DALEIN
+      // APNI FIREBASE DETAILS DALEIN
       apiKey: "AIzaSyCUsKRK-HQHQdtNHz2uudAvEMCibG-Ehdc",
       authDomain: "appforge-studio-n70sk.firebaseapp.com",
       databaseURL: "https://appforge-studio-n70sk-default-rtdb.firebaseio.com",
@@ -213,13 +215,13 @@
     const db = firebase.database();
     const dbRef = db.ref('match');
 
-    let processedEventId = null; // Changed: Ab hum properly Admin ka event sunenge
+    let processedEventId = null;
 
     dbRef.on('value', (snapshot) => {
         const data = snapshot.val();
         if (!data) return;
 
-        // UI Updates
+        // Updating Text/Scoreboard (Same as before)
         document.getElementById('teamAName').textContent = data.teams?.teamA?.name || 'TEAM A';
         document.getElementById('teamALogo').src = data.teams?.teamA?.logo || 'https://via.placeholder.com/50x50/ffffff/000000?text=A';
         document.getElementById('teamBName').textContent = `v ${data.teams?.teamB?.name || 'TEAM B'}`;
@@ -238,7 +240,7 @@
         
         document.getElementById('bowlerName').textContent = data.players?.bowler?.name || 'Bowler';
         
-        // Ball Tracker Logic
+        // Ball Tracker setup
         const ballTracker = document.getElementById('ballTracker');
         ballTracker.innerHTML = '';
         if(data.lastBalls && Array.isArray(data.lastBalls)) {
@@ -259,43 +261,41 @@
         }
 
         // ==========================================
-        // FIXED: ANIMATION TRIGGER LISTENING TO ADMIN
+        // PERFECT FULLSCREEN ANIMATION TRIGGER LOGIC
         // ==========================================
         if (data.lastEvent && data.lastEvent !== processedEventId) {
+            
+            // Check ki page refresh pe achanak se purana animation trigger na ho
+            let isFirstLoad = (processedEventId === null);
             processedEventId = data.lastEvent;
-            const eventType = data.lastEvent.split('_')[0]; // Format aayega "FOUR_12345678"
-            
-            const overlay = document.getElementById('animationOverlay');
-            const overlayText = document.getElementById('animationText');
-            
-            let applyClass = '';
-            let showText = '';
 
-            if (eventType === 'FOUR') { applyClass = 'animate-four'; showText = 'FOUR!'; }
-            else if (eventType === 'SIX') { applyClass = 'animate-six'; showText = 'SIX!'; }
-            else if (eventType === 'WICKET') { applyClass = 'animate-wicket'; showText = 'WICKET!'; }
+            if (!isFirstLoad) {
+                const eventType = data.lastEvent.split('_')[0]; 
+                
+                const overlay = document.getElementById('animationOverlay');
+                const overlayText = document.getElementById('animationText');
+                
+                let applyClass = '';
+                let showText = '';
 
-            if (applyClass) {
-                overlayText.textContent = showText;
-                overlay.className = 'animation-overlay'; 
-                void overlay.offsetWidth; // Force Reflow (Animation restart karne ke liye zaruri hai)
-                overlay.classList.add(applyClass);
+                if (eventType === 'FOUR') { applyClass = 'animate-four'; showText = 'FOUR!'; }
+                else if (eventType === 'SIX') { applyClass = 'animate-six'; showText = 'SIX!'; }
+                else if (eventType === 'WICKET') { applyClass = 'animate-wicket'; showText = 'WICKET!'; }
 
-                // Animation reset
-                setTimeout(() => {
-                    overlay.className = 'animation-overlay';
-                }, 2500);
-            }
-        }
-        
-        // YouTube Player
-        const youtubePlayer = document.getElementById('youtubePlayer');
-        const newUrlWithSound = data.youtubeURL ? data.youtubeURL.replace('mute=1', 'mute=0') : '';
-        if (newUrlWithSound && youtubePlayer.src !== newUrlWithSound) {
-            youtubePlayer.src = newUrlWithSound;
-        }
-    });
-</script>
+                if (applyClass) {
+                    overlayText.textContent = showText;
+                    
+                    // Pehle purani classes hata kar animation clear karo
+                    overlay.className = 'animation-overlay active';
+                    overlayText.style.animation = 'none';
+                    
+                    // Trick to force browser to re-render (Animation restart karne ke liye)
+                    void overlayText.offsetWidth; 
+                    
+                    // Ab nayi class do aur animation chalao
+                    overlay.classList.add(applyClass);
+                    overlayText.style.animation = '';
 
-</body>
-</html>
+                    // 3 seconds baad overlay chupao
+                    setTimeout(() => {
+         
