@@ -1,447 +1,392 @@
-<!-- index.html -->
 <!DOCTYPE html>
 <html lang="en">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
-    <title>Live Cricket Scoreboard - Professional</title>
-    <style>
-        @import url('https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600;700;800&display=swap');
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>AETHER | Spatial Transfer Protocol</title>
+    
+    <!-- External Dependencies -->
+    <script src="https://cdn.jsdelivr.net/npm/@mediapipe/hands/hands.js" crossorigin="anonymous"></script>
+    <script src="https://cdn.jsdelivr.net/npm/@mediapipe/camera_utils/camera_utils.js" crossorigin="anonymous"></script>
+    <script src="https://cdn.jsdelivr.net/npm/@mediapipe/drawing_utils/drawing_utils.js" crossorigin="anonymous"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Share+Tech+Mono&display=swap" rel="stylesheet">
 
+    <style>
         :root {
-            --bar-height: 75px; 
-            --primary-text: #ffffff;
-            --secondary-text: #a0aec0;
-            --accent-color: #ffde00; 
-            --bg-color: rgba(15, 23, 42, 0.9); 
-            --four-color: #00aaff;
-            --six-color: #ff00cc;
-            --wicket-color: #ff4444;
-            --noball-color: #ffaa00;
+            --neon: #00f2ff;
+            --neon-dim: rgba(0, 242, 255, 0.3);
+            --bg: #030303;
+            --error: #ff3e3e;
+            --font-main: 'Share Tech Mono', monospace;
+            --hand-x: 50%;
+            --hand-y: 50%;
+        }
+
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+            -webkit-tap-highlight-color: transparent;
         }
 
         body {
-            margin: 0;
+            background-color: var(--bg);
+            color: var(--neon);
+            font-family: var(--font-main);
+            height: 100vh;
             overflow: hidden;
-            background-color: #000;
-            font-family: 'Poppins', sans-serif;
+            text-transform: uppercase;
         }
 
-        .broadcast-container {
+        /* --- Sci-Fi Setup Screen --- */
+        #setup-screen {
+            position: fixed;
+            inset: 0;
+            background: radial-gradient(circle at center, #0a1a1a 0%, #000 100%);
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            z-index: 1000;
+            padding: 20px;
+        }
+
+        .hud-card {
+            border: 1px solid var(--neon-dim);
+            padding: 40px;
+            background: rgba(0, 0, 0, 0.8);
+            box-shadow: 0 0 40px rgba(0, 242, 255, 0.1);
+            max-width: 450px;
+            width: 100%;
+            text-align: center;
+            position: relative;
+        }
+
+        .hud-card::before {
+            content: "";
+            position: absolute;
+            top: -2px; left: -2px; width: 20px; height: 20px;
+            border-top: 2px solid var(--neon); border-left: 2px solid var(--neon);
+        }
+
+        h1 {
+            font-size: 2rem;
+            letter-spacing: 12px;
+            margin-bottom: 30px;
+            text-shadow: 0 0 10px var(--neon);
+        }
+
+        input {
+            width: 100%;
+            background: rgba(255,255,255,0.05);
+            border: 1px solid var(--neon-dim);
+            color: var(--neon);
+            padding: 12px;
+            margin-bottom: 15px;
+            font-family: inherit;
+            text-align: center;
+            outline: none;
+        }
+
+        .btn-group {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 10px;
+            margin-top: 20px;
+        }
+
+        button {
+            background: transparent;
+            border: 1px solid var(--neon);
+            color: var(--neon);
+            padding: 15px;
+            cursor: pointer;
+            font-family: inherit;
+            transition: all 0.3s;
+        }
+
+        button:hover {
+            background: var(--neon);
+            color: #000;
+            box-shadow: 0 0 20px var(--neon);
+        }
+
+        /* --- HUD Interface --- */
+        #main-interface {
+            display: none;
             position: relative;
             width: 100vw;
             height: 100vh;
         }
 
-        #youtubePlayer {
+        #video-feed {
             position: absolute;
-            top: 0; left: 0;
-            width: 100%; height: 100%;
-            border: none;
-            z-index: 1; 
-            transition: opacity 0.5s ease;
+            inset: 0;
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+            transform: scaleX(-1);
+            filter: grayscale(1) contrast(1.5) brightness(0.7) sepia(1) hue-rotate(140deg);
         }
 
-        /* SOUND INTERACTION OVERLAY */
-        .interaction-overlay {
-            position: fixed;
-            top: 0; left: 0; width: 100vw; height: 100vh;
-            background: rgba(0,0,0,0.85);
-            color: #fff;
-            display: flex;
-            justify-content: center;
-            align-items: center;
-            z-index: 9999999; 
-            font-size: 26px;
-            font-weight: 700;
-            cursor: pointer;
-            backdrop-filter: blur(10px);
-            transition: opacity 0.5s ease;
-            text-transform: uppercase;
-            letter-spacing: 2px;
-            text-align: center;
+        canvas {
+            position: absolute;
+            inset: 0;
+            width: 100%;
+            height: 100%;
+            transform: scaleX(-1);
+            z-index: 5;
+            opacity: 0.6;
         }
-        .interaction-overlay:hover { background: rgba(0,0,0,0.95); color: var(--accent-color); }
 
-        /* TIMERS OVERLAY (INNINGS & OVERS) */
-        .break-overlay {
-            position: fixed;
-            top: 0; left: 0; width: 100vw; height: 100vh;
-            background: #000;
+        .overlay-layer {
+            position: absolute;
+            inset: 0;
+            z-index: 10;
+            pointer-events: none;
+            border: 20px solid transparent;
+            border-image: radial-gradient(circle, transparent 70%, rgba(0, 242, 255, 0.05) 100%) 20;
+        }
+
+        .scanline {
+            position: absolute;
+            width: 100%;
+            height: 2px;
+            background: rgba(0, 242, 255, 0.1);
+            top: 0;
+            animation: scanning 4s linear infinite;
+        }
+
+        @keyframes scanning {
+            0% { top: 0%; } 100% { top: 100%; }
+        }
+
+        /* --- Transfer Object --- */
+        .payload-wrapper {
+            position: absolute;
+            left: var(--hand-x);
+            top: var(--hand-y);
+            transform: translate(-50%, -50%);
+            z-index: 100;
+            pointer-events: none;
+        }
+
+        #payload-img {
+            width: 220px;
+            height: 300px;
+            object-fit: cover;
+            border: 1px solid var(--neon);
+            box-shadow: 0 0 30px var(--neon-dim);
             display: none;
-            flex-direction: column;
-            justify-content: center;
-            align-items: center;
-            z-index: 999999;
         }
-        .break-overlay h1 {
-            font-size: 6vw;
-            color: var(--accent-color);
-            margin-bottom: 20px;
-            text-transform: uppercase;
-            text-shadow: 0 0 20px rgba(255, 222, 0, 0.5);
-        }
-        .break-overlay .timer-box {
-            font-size: 3vw;
-            color: #fff;
-            font-weight: 600;
-        }
-        .break-overlay .timer-box span { color: var(--wicket-color); font-size: 4vw; }
 
-        /* PROFESSIONAL SCOREBOARD STYLE */
-        .scoreboard-bar {
-            box-sizing: border-box;
+        /* --- Materialize Animation --- */
+        .animate-drop {
+            display: block !important;
+            animation: materialize 0.8s cubic-bezier(0.15, 0.85, 0.35, 1.2) forwards;
+        }
+
+        @keyframes materialize {
+            0% { transform: scale(0) rotateX(90deg); opacity: 0; filter: brightness(5) blur(20px); }
+            100% { transform: scale(1) rotateX(0deg); opacity: 1; filter: brightness(1) blur(0px); }
+        }
+
+        .status-tag {
             position: fixed;
-            bottom: 25px;
+            bottom: 40px;
             left: 50%;
             transform: translateX(-50%);
-            width: 92%;
-            max-width: 1200px;
-            height: var(--bar-height);
-            background: var(--bg-color);
-            backdrop-filter: blur(12px); 
-            border: 1px solid rgba(255, 255, 255, 0.15);
-            border-radius: 12px;
-            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.6);
-            color: var(--primary-text);
-            display: flex;
-            align-items: center;
-            justify-content: space-between;
-            padding: 0 20px;
-            z-index: 50; 
-            transition: transform 0.3s ease;
-        }
-
-        /* FULLSCREEN ANIMATION OVERLAY */
-        .animation-overlay {
-            position: fixed;
-            top: 0; left: 0; 
-            width: 100vw; height: 100vh;
-            display: flex; justify-content: center; align-items: center;
-            z-index: 99999; 
-            pointer-events: none; 
-            opacity: 0;
-            background: radial-gradient(circle, rgba(0,0,0,0.8) 0%, rgba(0,0,0,0) 70%); 
-            transition: opacity 0.2s ease;
-        }
-        .animation-overlay.active { opacity: 1; }
-
-        #animationText {
-            display: inline-block; 
-            color: white;
-            font-size: 14vw; 
-            font-weight: 800;
-            font-style: italic;
-            text-transform: uppercase;
-            opacity: 0;
-            margin-bottom: 50px; 
-        }
-
-        @keyframes pop-in-out {
-            0% { transform: scale(0) rotate(-10deg); opacity: 0; }
-            15% { transform: scale(1.1) rotate(0deg); opacity: 1; }
-            80% { transform: scale(1) rotate(0deg); opacity: 1; }
-            100% { transform: scale(1.5) rotate(10deg); opacity: 0; filter: blur(10px); }
-        }
-
-        @keyframes pop-noball {
-            0% { transform: scale(0); opacity: 0; }
-            15% { transform: scale(1.2); opacity: 1; }
-            25% { transform: scale(1); opacity: 1; text-shadow: 0 0 80px var(--noball-color); }
-            50% { transform: scale(1.1); opacity: 1; text-shadow: 0 0 20px var(--noball-color); }
-            80% { transform: scale(1); opacity: 1; }
-            100% { transform: scale(1.5); opacity: 0; filter: blur(10px); }
-        }
-
-        .animation-overlay.animate-four #animationText {
-            text-shadow: 0 0 30px var(--four-color), 0 0 60px var(--four-color), 0 0 100px #fff;
-            animation: pop-in-out 3s cubic-bezier(0.175, 0.885, 0.32, 1.275) forwards;
-        }
-        .animation-overlay.animate-six #animationText {
-            text-shadow: 0 0 30px var(--six-color), 0 0 60px var(--six-color), 0 0 100px #fff;
-            animation: pop-in-out 3s cubic-bezier(0.175, 0.885, 0.32, 1.275) forwards;
-        }
-        .animation-overlay.animate-wicket #animationText {
-            text-shadow: 0 0 30px var(--wicket-color), 0 0 60px var(--wicket-color), 0 0 100px #fff;
-            animation: pop-in-out 3s cubic-bezier(0.175, 0.885, 0.32, 1.275) forwards;
-        }
-        .animation-overlay.animate-noball #animationText {
-            color: var(--noball-color);
-            text-shadow: 0 0 30px var(--noball-color), 0 0 60px var(--noball-color), 0 0 100px #fff;
-            animation: pop-noball 3s cubic-bezier(0.175, 0.885, 0.32, 1.275) forwards;
-        }
-
-        /* Layout Sizes */
-        .team-section, .player-section, .bowler-section { display: flex; align-items: center; gap: 15px; height: 100%; }
-        .team-logo { height: 45px; width: 45px; object-fit: contain; }
-        .team-names { font-size: 16px; line-height: 1.2; font-weight: 600; white-space: nowrap; }
-        .score-details { display: flex; align-items: center; gap: 12px; }
-        .score-box { background-color: rgba(0,0,0,0.6); padding: 4px 14px; font-size: 28px; font-weight: 700; border-radius: 6px; color: var(--accent-color); letter-spacing: 1px; }
-        .overs-box { font-size: 13px; color: var(--secondary-text); font-weight: 500; }
-        .separator { width: 1px; height: 60%; background-color: rgba(255, 255, 255, 0.2); }
-        .batsmen { display: flex; flex-direction: column; justify-content: center; gap: 2px; font-size: 15px; }
-        .batsman { display: flex; align-items: center; gap: 8px; }
-        .batsman .name { width: 120px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; font-weight: 500;}
-        .batsman .runs { font-weight: 700; width: 30px; text-align: right; font-size: 16px;}
-        .batsman .balls { color: var(--secondary-text); width: 35px; font-size: 13px;}
-        .batsman.striker .name { color: var(--accent-color); font-weight: 600;}
-        
-        .bowler-wrapper { display: flex; flex-direction: column; justify-content: center; gap: 3px; }
-        .bowler-info { display: flex; align-items: center;}
-        .bowler-info .name { font-size: 15px; font-weight: 500; margin-right: 15px; width: 110px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis;}
-        .prev-over { font-size: 10px; color: var(--secondary-text); letter-spacing: 0.5px; margin-bottom: 2px; font-weight: 600;}
-        
-        .ball-tracker { display: flex; align-items: center; gap: 6px; }
-        .ball { width: 26px; height: 26px; border-radius: 50%; display: flex; justify-content: center; align-items: center; font-size: 13px; font-weight: 600; background: rgba(255,255,255,0.1); border: 1px solid rgba(255, 255, 255, 0.3); }
-        .ball-run { background: #ffffff; color: #000; border: none; }
-        .ball-four { background: var(--four-color); color: #fff; border: none; }
-        .ball-six { background: var(--six-color); color: #fff; border: none; }
-        .ball-wicket { background: var(--wicket-color); color: #fff; border: none; }
-        .ball-extra { background: var(--noball-color); color: #000; border: none; }
-
-        @media (max-width: 900px) {
-            .scoreboard-bar { transform: translateX(-50%) scale(0.85); transform-origin: bottom center; bottom: 10px; width: 100%;}
-        }
-        @media (max-width: 600px) {
-            .scoreboard-bar { transform: translateX(-50%) scale(0.65); transform-origin: bottom center; bottom: 5px; width: 100vw; padding: 0 10px; }
+            background: rgba(0,0,0,0.8);
+            padding: 5px 20px;
+            border: 1px solid var(--neon-dim);
+            font-size: 0.8rem;
+            letter-spacing: 2px;
         }
     </style>
 </head>
 <body>
 
-<audio id="sirenSound" src="siren.mp3" preload="auto"></audio>
-
-<div id="interactionOverlay" class="interaction-overlay">
-    <span>🖱️ Click here to start Video & Sound</span>
-</div>
-
-<div id="breakOverlay" class="break-overlay">
-    <h1 id="breakTitle">OVER COMPLETE</h1>
-    <div class="timer-box">Resuming in <span id="breakTimer">30</span>s</div>
-</div>
-
-<div class="broadcast-container">
-    <iframe id="youtubePlayer" allow="autoplay; fullscreen; encrypted-media" frameborder="0"></iframe>
-
-    <div class="animation-overlay" id="animationOverlay">
-        <span id="animationText"></span>
-    </div>
-
-    <div class="scoreboard-bar" id="scoreboardBar">
-        <div class="team-section">
-            <img id="teamALogo" src="https://via.placeholder.com/50x50/ffffff/000000?text=A" alt="Team A" class="team-logo">
-            <div class="team-names">
-                <span id="teamAName">TEAM A</span><br>
-                <span id="teamBName" style="color: var(--secondary-text); font-size: 0.85em;">v TEAM B</span>
+    <div id="setup-screen">
+        <div class="hud-card">
+            <h1>AETHER</h1>
+            <input type="text" id="room-input" placeholder="ACCESS CODE (4-DIGIT)" value="1010">
+            <input type="text" id="url-input" placeholder="SOURCE URL" value="https://images.unsplash.com/photo-1635805737707-575885ab0820?w=500">
+            <div class="btn-group">
+                <button onclick="boot('sender')">INIT SENDER</button>
+                <button onclick="boot('receiver')">INIT RECEIVER</button>
             </div>
-            <div class="score-details">
-                <div class="score-box">
-                    <span id="runs">0</span>-<span id="wickets">0</span>
-                </div>
-                <div class="overs-box">
-                    OVERS <span id="overs" style="color:#fff; font-weight:700;">0.0</span>
-                </div>
-            </div>
-        </div>
-        
-        <div class="separator"></div>
-        
-        <div class="player-section">
-            <div class="batsmen">
-                <div class="batsman striker">
-                    <span class="name" id="strikerName">Striker*</span>
-                    <span class="runs" id="strikerRuns">0</span>
-                    <span class="balls">(<span id="strikerBalls">0</span>)</span>
-                </div>
-                <div class="batsman" id="nonStrikerContainer">
-                    <span class="name" id="nonStrikerName">Non-Striker</span>
-                    <span class="runs" id="nonStrikerRuns">0</span>
-                    <span class="balls">(<span id="nonStrikerBalls">0</span>)</span>
-                </div>
-            </div>
-        </div>
-        
-        <div class="separator"></div>
-        
-        <div class="bowler-section">
-            <div class="bowler-wrapper">
-                <div class="prev-over" id="prevOverSummary" style="display:none;">Prev: </div>
-                <div class="bowler-info">
-                    <span class="name" id="bowlerName">Bowler</span>
-                </div>
-            </div>
-            <div class="ball-tracker" id="ballTracker"></div>
+            <p style="margin-top: 20px; font-size: 0.6rem; opacity: 0.5;">v2.4.0 // Spatial Transfer Handshake Protocol</p>
         </div>
     </div>
-</div>
 
-<script src="https://www.gstatic.com/firebasejs/8.6.1/firebase-app.js"></script>
-<script src="https://www.gstatic.com/firebasejs/8.6.1/firebase-database.js"></script>
-
-<script>
-    const firebaseConfig = {
-      apiKey: "AIzaSyCUsKRK-HQHQdtNHz2uudAvEMCibG-Ehdc",
-      authDomain: "appforge-studio-n70sk.firebaseapp.com",
-      databaseURL: "https://appforge-studio-n70sk-default-rtdb.firebaseio.com",
-      projectId: "appforge-studio-n70sk",
-      storageBucket: "appforge-studio-n70sk.firebasestorage.app",
-      messagingSenderId: "374753394892",
-      appId: "1:374753394892:web:0d32fc8ba5988e1aa18269"
-    };
-
-    firebase.initializeApp(firebaseConfig);
-    const db = firebase.database();
-    const dbRef = db.ref('match');
-
-    let processedEventId = null;
-    let isUserInteracted = false;
-    let animationTimeout = null;
-    let breakInterval = null;
-
-    const interactionOverlay = document.getElementById('interactionOverlay');
-    interactionOverlay.addEventListener('click', () => {
-        isUserInteracted = true;
-        interactionOverlay.style.opacity = '0';
-        setTimeout(() => { interactionOverlay.style.display = 'none'; }, 500);
-
-        const ytPlayer = document.getElementById('youtubePlayer');
-        if (ytPlayer.src && ytPlayer.src.includes('mute=1')) {
-            ytPlayer.src = ytPlayer.src.replace('mute=1', 'mute=0');
-        }
-    });
-
-    const safeSetText = (id, text) => {
-        const el = document.getElementById(id);
-        if (el && el.textContent !== String(text)) el.textContent = String(text);
-    };
-
-    dbRef.on('value', (snapshot) => {
-        const data = snapshot.val();
-        if (!data) return;
-
-        safeSetText('teamAName', data.teams?.teamA?.name || 'TEAM A');
-        document.getElementById('teamALogo').src = data.teams?.teamA?.logo || 'https://via.placeholder.com/50x50/ffffff/000000?text=A';
-        safeSetText('teamBName', `v ${data.teams?.teamB?.name || 'TEAM B'}`);
+    <div id="main-interface">
+        <video id="video-feed" playsinline></video>
+        <canvas id="tracking-canvas"></canvas>
+        <div class="overlay-layer">
+            <div class="scanline"></div>
+        </div>
         
-        safeSetText('runs', data.score?.runs || 0);
-        safeSetText('wickets', data.score?.wickets || 0);
-        safeSetText('overs', `${data.score?.overs || 0}.${data.score?.balls || 0}`);
-        
-        safeSetText('strikerName', (data.players?.striker?.name || 'Striker') + '*');
-        safeSetText('strikerRuns', data.players?.striker?.runs || 0);
-        safeSetText('strikerBalls', data.players?.striker?.balls || 0);
-        
-        const nsEl = document.getElementById('nonStrikerContainer');
-        if (!data.players?.nonStriker?.name || data.players.nonStriker.name.trim() === '') {
-            nsEl.style.display = 'none';
-        } else {
-            nsEl.style.display = 'flex';
-            safeSetText('nonStrikerName', data.players.nonStriker.name);
-            safeSetText('nonStrikerRuns', data.players.nonStriker.runs || 0);
-            safeSetText('nonStrikerBalls', data.players.nonStriker.balls || 0);
-        }
-        
-        safeSetText('bowlerName', data.players?.bowler?.name || 'Bowler');
+        <div class="payload-wrapper">
+            <img id="payload-img" src="" alt="AETHER_PAYLOAD">
+        </div>
 
-        // YOUTUBE VIDEO UPDATE
-        if (data.youtubeURL) {
-            const ytPlayer = document.getElementById('youtubePlayer');
-            let finalURL = data.youtubeURL;
-            if (isUserInteracted) finalURL = finalURL.replace('mute=1', 'mute=0');
-            if (ytPlayer.src !== finalURL) ytPlayer.src = finalURL;
-        }
+        <div class="status-tag" id="status-display">LINK_IDLE // WAITING_FOR_SYNC</div>
+    </div>
 
-        // PREVIOUS OVER SUMMARY
-        const prevSummary = document.getElementById('prevOverSummary');
-        if (data.previousOverHistory && data.previousOverHistory.length > 0) {
-            prevSummary.textContent = 'PREV OVER: ' + data.previousOverHistory.join(' ');
-            prevSummary.style.display = 'block';
-        } else {
-            prevSummary.style.display = 'none';
-        }
-        
-        // BALL TRACKER
-        const ballTracker = document.getElementById('ballTracker');
-        ballTracker.innerHTML = '';
-        if(data.lastBalls && Array.isArray(data.lastBalls)) {
-            const currentOverBalls = data.lastBalls.slice(-6);
-            currentOverBalls.forEach(ball => {
-                const ballEl = document.createElement('div');
-                ballEl.textContent = ball;
-                ballEl.classList.add('ball');
+    <script type="module">
+        import { initializeApp } from "https://www.gstatic.com/firebasejs/9.22.1/firebase-app.js";
+        import { getDatabase, ref, set, onValue, update } from "https://www.gstatic.com/firebasejs/9.22.1/firebase-database.js";
 
-                if (ball === '4') ballEl.classList.add('ball-four');
-                else if (ball === '6') ballEl.classList.add('ball-six');
-                else if (ball === 'W') ballEl.classList.add('ball-wicket');
-                else if (isNaN(ball)) ballEl.classList.add('ball-extra');
-                else ballEl.classList.add('ball-run');
+        // --- FIREBASE INITIALIZATION ---
+        const firebaseConfig = {
+            apiKey: "AIzaSyBxc_mSE5Z-5vvLA8_8EOFuueERi8eY63U",
+            authDomain: "tokji-3b05a.firebaseapp.com",
+            databaseURL: "https://tokji-3b05a-default-rtdb.firebaseio.com",
+            projectId: "tokji-3b05a",
+            storageBucket: "tokji-3b05a.firebasestorage.app",
+            messagingSenderId: "743789412997",
+            appId: "1:743789412997:web:be9196bd3dd574ef879fec"
+        };
 
-                ballTracker.appendChild(ballEl);
+        const fApp = initializeApp(firebaseConfig);
+        const db = getDatabase(fApp);
+
+        // --- APP STATE ---
+        const state = {
+            role: null,
+            roomId: null,
+            isFist: false,
+            lastFistState: false,
+            payloadReady: false,
+            syncReady: false
+        };
+
+        const video = document.getElementById('video-feed');
+        const canvas = document.getElementById('tracking-canvas');
+        const ctx = canvas.getContext('2d');
+        const payloadImg = document.getElementById('payload-img');
+        const statusDisplay = document.getElementById('status-display');
+
+        window.boot = async (role) => {
+            state.role = role;
+            state.roomId = document.getElementById('room-input').value;
+            const imgUrl = document.getElementById('url-input').value;
+
+            document.getElementById('setup-screen').style.display = 'none';
+            document.getElementById('main-interface').style.display = 'block';
+            
+            if (role === 'sender') {
+                payloadImg.src = imgUrl;
+                payloadImg.style.display = 'block';
+                statusDisplay.innerText = "LINK_ACTIVE // GRAB TO TRANSFER";
+                // Reset DB
+                set(ref(db, `spatial/${state.roomId}`), { status: 'idle', url: imgUrl });
+            }
+
+            initCamera();
+            initFirebase();
+        };
+
+        function initFirebase() {
+            onValue(ref(db, `spatial/${state.roomId}`), (snapshot) => {
+                const data = snapshot.val();
+                if (!data) return;
+
+                if (state.role === 'receiver') {
+                    if (data.status === 'ready') {
+                        payloadImg.src = data.url;
+                        state.payloadReady = true;
+                        statusDisplay.innerText = "SIGNAL_DETECTED // PERFORM DROP GESTURE";
+                    } else if (data.status === 'consumed') {
+                        state.payloadReady = false;
+                        statusDisplay.innerText = "TRANSFER_COMPLETE // STANDBY";
+                    }
+                }
+
+                if (state.role === 'sender' && data.status === 'consumed') {
+                    statusDisplay.innerText = "DISPATCHED_SUCCESSFULLY";
+                    setTimeout(() => location.reload(), 3000);
+                }
             });
         }
 
-        // BREAK / TIMERS LOGIC
-        const overlay = document.getElementById('breakOverlay');
-        const title = document.getElementById('breakTitle');
-        const timer = document.getElementById('breakTimer');
-        const yt = document.getElementById('youtubePlayer');
-        const status = data.matchStatus || 'LIVE';
+        async function initCamera() {
+            const hands = new Hands({
+                locateFile: (file) => `https://cdn.jsdelivr.net/npm/@mediapipe/hands/${file}`
+            });
 
-        if (status === 'LIVE' || !data.breakEndTime) {
-            overlay.style.display = 'none';
-            yt.style.opacity = '1';
-            clearInterval(breakInterval);
-        } else {
-            overlay.style.display = 'flex';
-            yt.style.opacity = '0';
-            title.textContent = status === 'INNINGS_BREAK' ? 'INNINGS END' : 'OVER COMPLETE';
-            
-            clearInterval(breakInterval);
-            breakInterval = setInterval(() => {
-                let remaining = Math.max(0, Math.floor((data.breakEndTime - Date.now()) / 1000));
-                timer.textContent = remaining;
-                if (remaining <= 0) clearInterval(breakInterval);
-            }, 200);
+            hands.setOptions({
+                maxNumHands: 1,
+                modelComplexity: 1,
+                minDetectionConfidence: 0.7,
+                minTrackingConfidence: 0.7
+            });
+
+            hands.onResults(processHands);
+
+            const camera = new Camera(video, {
+                onFrame: async () => {
+                    canvas.width = video.videoWidth;
+                    canvas.height = video.videoHeight;
+                    await hands.send({image: video});
+                },
+                width: 1280,
+                height: 720
+            });
+            camera.start();
         }
 
-        // ANIMATIONS
-        if (data.lastEvent && data.lastEvent !== processedEventId) {
-            let isFirstLoad = (processedEventId === null);
-            processedEventId = data.lastEvent;
-
-            if (!isFirstLoad) {
-                const eventType = data.lastEvent.split('_')[0]; 
-                const animOverlay = document.getElementById('animationOverlay');
-                const overlayText = document.getElementById('animationText');
+        function processHands(results) {
+            ctx.clearRect(0, 0, canvas.width, canvas.height);
+            
+            if (results.multiHandLandmarks && results.multiHandLandmarks.length > 0) {
+                const landmarks = results.multiHandLandmarks[0];
                 
-                let applyClass = '';
-                let showText = '';
+                // Visual Tracking HUD
+                drawConnectors(ctx, landmarks, HAND_CONNECTIONS, {color: '#00f2ff', lineWidth: 1});
+                drawLandmarks(ctx, landmarks, {color: '#00f2ff', radius: 2});
 
-                if (eventType === 'FOUR') { applyClass = 'animate-four'; showText = 'FOUR!'; }
-                else if (eventType === 'SIX') { applyClass = 'animate-six'; showText = 'SIX!'; }
-                else if (eventType === 'WICKET') { applyClass = 'animate-wicket'; showText = 'WICKET!'; }
-                else if (eventType === 'NOBALL') { 
-                    applyClass = 'animate-noball'; showText = 'NO BALL!'; 
-                    const siren = document.getElementById('sirenSound');
-                    if(siren && isUserInteracted) siren.play().catch(e => console.log('Audio error:', e));
+                // Gesture Math
+                const wrist = landmarks[0];
+                const fingerTips = [8, 12, 16, 20];
+                const fingerPips = [6, 10, 14, 18];
+                
+                let closedCount = 0;
+                for(let i=0; i<4; i++) {
+                    const tipDist = Math.hypot(landmarks[fingerTips[i]].x - wrist.x, landmarks[fingerTips[i]].y - wrist.y);
+                    const pipDist = Math.hypot(landmarks[fingerPips[i]].x - wrist.x, landmarks[fingerPips[i]].y - wrist.y);
+                    if (tipDist < pipDist) closedCount++;
                 }
 
-                if (applyClass) {
-                    overlayText.textContent = showText;
-                    if(animationTimeout) clearTimeout(animationTimeout);
-                    
-                    animOverlay.className = 'animation-overlay'; // Reset
-                    
-                    setTimeout(() => {
-                        animOverlay.classList.add('active', applyClass);
-                        animationTimeout = setTimeout(() => {
-                            animOverlay.className = 'animation-overlay';
-                        }, 3000);
-                    }, 50); // Slight delay to ensure CSS re-trigger
+                state.isFist = closedCount >= 3;
+
+                // Tracking coordinates
+                const handX = (1 - landmarks[9].x) * window.innerWidth;
+                const handY = landmarks[9].y * window.innerHeight;
+                document.documentElement.style.setProperty('--hand-x', `${handX}px`);
+                document.documentElement.style.setProperty('--hand-y', `${handY}px`);
+
+                // SENDER LOGIC: If grabbed, hide and update DB
+                if (state.role === 'sender' && state.isFist && !state.syncReady) {
+                    state.syncReady = true;
+                    payloadImg.style.display = 'none';
+                    update(ref(db, `spatial/${state.roomId}`), { status: 'ready' });
+                    statusDisplay.innerText = "UPLOADING_SIGNAL...";
                 }
+
+                // RECEIVER LOGIC: Detect Hand Transition (Fist -> Open)
+                if (state.role === 'receiver' && state.payloadReady) {
+                    if (state.lastFistState === true && state.isFist === false) {
+                        // THE DROP
+                        payloadImg.classList.add('animate-drop');
+                        update(ref(db, `spatial/${state.roomId}`), { status: 'consumed' });
+                        if ("vibrate" in navigator) navigator.vibrate([30, 50, 30]);
+                    }
+                }
+
+                state.lastFistState = state.isFist;
             }
         }
-    });
-</script>
+    </script>
 </body>
 </html>
